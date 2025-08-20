@@ -1,6 +1,6 @@
 ---
-title: "第７章　デプロイ戦線"
-emoji: "♐️"
+title: "第５章　ユーザー認証の彼方へ"
+emoji: "♎️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
 published: false # trueを指定する

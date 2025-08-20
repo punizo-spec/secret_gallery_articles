@@ -1,5 +1,5 @@
 ---
-title: "ここは未来の分岐点"
+title: "ここは未来の分岐点/飛翔！ユーザー認証の彼方へ"
 emoji: "♎️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
