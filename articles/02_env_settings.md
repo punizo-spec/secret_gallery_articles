@@ -341,7 +341,8 @@ sudo apt update && sudo apt install python3-venv
 ```bash
 cd ~/Desktop
 ```
-
+> ちょっとだけ「コマンド」説明
+> cd : Change Directory。「今いる場所（＝フォルダ）」を移動するコマンド
 ```bash
 mkdir django_workspace
 ```
