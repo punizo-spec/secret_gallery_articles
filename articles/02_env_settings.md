@@ -355,6 +355,7 @@ mkdir django_workspace
 :::
 
 「django_workspace」のディレクトリ内に移動して！
+![](/images/4_1.cui.png)
 
 
 
