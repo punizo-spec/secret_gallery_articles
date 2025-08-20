@@ -1,5 +1,5 @@
 ---
-title: "第２章　Hello, World… それはすべての始まり"
+title: "第２章　Hello World それはすべての始まりにすぎなかった……"
 emoji: "♋️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
