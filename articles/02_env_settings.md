@@ -313,9 +313,11 @@ Japanese Language Pack
 このコマンドで、いま現在の python のバージョンを確認して！
 ```bash
 python3 --version
-Python 3.x.x
 ```
 こんな感じにバージョン情報が表示されている？
+```bash
+Python 3.x.x
+```
 「.x.x」 ←この部分には数字が入っているよ。バージョンの数値だから、いちばん左側が 3 ならOK！（このバージョンの並びにも明確な意味があるんだ）
 
 最近の PC なら python3 が入ってないことはないと思うけど、もしもここで「command not found」って出たら、Python3 が入っていない可能性大！
