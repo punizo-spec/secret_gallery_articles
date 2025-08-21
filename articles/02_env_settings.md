@@ -305,7 +305,7 @@ Japanese Language Pack
 - Ubuntu (WSL) を選ぶ
 表記は環境によって Ubuntu / WSL: Ubuntu / WSL だけだったりするよ！
 
-プロジェクトごとに設定するなら、.vscode/launch.json で設定するやり方もあるんだけど、今回は省略しないでおくよ。
+プロジェクトごとに設定するなら、.vscode/launch.json で設定するやり方もあるんだけど、今回は省略させていただく。
 けど、気になる人は chatGPT とか Gemini に聞けば雛形作ってくれると思う笑
 ::::
 
