@@ -17,7 +17,7 @@ python3 --version
 ```
 
 "ターミナル"を使ったことない人は 👇 Launchpadで"ターミナル"検索 👇
-![](/images/c2_p1_1_terminal.png)
+![](/images/c1_p1_1_terminal.png)
 
 ターミナルを立ち上げたら、その黒い画面に上記コマンド python3 --version をコピペ！
 結果は・・・
@@ -138,10 +138,10 @@ VSCode はそのままだと英語表記なので、日本語に直します。
 英語の方が読みやすい人はそのままでも良いけど、ぷに蔵は日本語表記の説明しかできないので、そこはご了承ください！
 
 （１） VSCode を初回立ち上げると、こんな感じで出てくると思う。
-![](/images/c2_p1_2_vsc_launche.png)
+![](/images/c1_p1_2_vsc_launche.png)
 
 （２）拡張機能で日本語化パックを入れたいので、黄色枠で囲ったアイコンをクリックして
-![](/images/c2_p1_3_vsc_addon.png)
+![](/images/c1_p1_3_vsc_addon.png)
 
 
 🔍検索ウィンドウに[Japanese Language Pack]と入力
@@ -150,18 +150,18 @@ Japanese Language Pack
 ```
 
 （３）そうすると、拡張機能候補が出てくるので、地球儀アイコンの拡張機能をインストール
-![](/images/c2_p1_4_vsc_ja_pack.png)
+![](/images/c1_p1_4_vsc_ja_pack.png)
 
 （４）インストールが完了すると、画面右下に英語で[日本語に変更しますか？]と出てくるので、[Change Language and Restart]を押す！
-![](/images/c2_p1_5_vsc_ja_set.png)
+![](/images/c1_p1_5_vsc_ja_set.png)
 
 どうかな？無事に VSCode は日本語化された？
 
 （５）VSCodeでターミナルを起動してみよう。
-![](/images/c2_p1_6_vsc_terminal.png)
+![](/images/c1_p1_6_vsc_terminal.png)
 
 （６）右下に（黄色枠内）ターミナル画面が表れたら、勝ち！
-![](/images/c2_p1_7_vsc_done.png)
+![](/images/c1_p1_7_vsc_done.png)
 
 ここまでできたら、開発準備は完了だから、Win勢との合流を待とう！！
 
@@ -176,7 +176,7 @@ Windowsでは、Microsoft公式が提供してる WSL2 をインストールし�
 難しい設定じゃないので、WSL2 を使って構築していこう！
 
 （１）まずはじめに、Win マークを右クリックして、 **ターミナル** を起動。すると、こんな画面が出てくる。
-![](/images/c2_p2_1_terminal.png)
+![](/images/c1_p2_1_terminal.png)
 ここで、 Windows PowerShell / PowerShell 7 / コマンドプロンプト のどれが出てくるのかは、環境によるかな。
 今回はどれが出てきても大丈夫なので、下記コマンドを入力してね。
 ```bash
@@ -229,7 +229,7 @@ LinuxOS にはいろんな種類（ディストリビューション）がある
 （３）Ubuntu のユーザーアカウントを作成
 Ubuntu のインストールが完了したら、「user account, password, password(確認用)」の入力を求められる。
 下記のように入力するよ。password 蘭は入力しても「 *** 」とか出なくて黒いままだから、気にせず入力してね。
-![](/images/c2_p2_2_account.png)
+![](/images/c1_p2_2_account.png)
 完了したら、コマンド「 wsl 」でターミナルのコマンド入力が Ubuntu 環境に切り替わるかチェックしておこう！（作成直後ならすでに Ubuntu 環境に切り替わっているかもしれないので、コマンド「 wsl 」は省略）
 ```bash
 wsl
@@ -239,7 +239,7 @@ wsl
 lsb_release -a
 ```
 ↓ 出力結果はこんな感じ ↓
-![](/images/c2_p2_3_ubuntu_v.png)
+![](/images/c1_p2_3_ubuntu_v.png)
 
 ### - ② VSCodeをインストール
 Python の準備が整ったら、次はコードを書くためのツール（＝エディタ）の準備が必要だ。エディタは好きなの使って良いと思うけど、いまこだわりが無いのなら、ぷに蔵のおすすめの Visual Studio Code（通称：VSCode）を入れてくれ！
@@ -262,10 +262,10 @@ VSCode はそのままだと英語表記なので、日本語に直します。
 英語の方が読みやすい人はそのままでも良いけど、ぷに蔵は日本語表記の説明しかできないので、そこはご了承ください！
 
 （１） VSCode を初回立ち上げると、こんな感じで出てくると思う。
-![](/images/c2_p2_4_vsc.png)
+![](/images/c1_p2_4_vsc.png)
 
 （２）拡張機能で日本語化パックを入れたいので、黄色枠で囲ったアイコンをクリックして。
-![](/images/c2_p1_3_vsc_addon.png)
+![](/images/c1_p1_3_vsc_addon.png)
 *（画面が Mac なのは申し訳ない！でも操作手順同じなので許して…）*
 
 
@@ -275,26 +275,26 @@ Japanese Language Pack
 ```
 
 （３）そうすると、拡張機能候補が出てくるので、地球儀アイコンの拡張機能をインストール
-![](/images/c2_p1_4_vsc_ja_pack.png)
+![](/images/c1_p1_4_vsc_ja_pack.png)
 
 （４）インストールが完了すると、画面右下に英語で[日本語に変更しますか？]と出てくるので、[Change Language and Restart]を押す！
-![](/images/c2_p1_5_vsc_ja_set.png)
+![](/images/c1_p1_5_vsc_ja_set.png)
 
 どうかな？無事に VSCode は日本語化された？
 
 （５）VSCodeでターミナルを起動してみよう。
-![](/images/c2_p1_6_vsc_terminal.png)
+![](/images/c1_p1_6_vsc_terminal.png)
 
 （６）右下にこんな感じのターミナル画面が表れる！
-![](/images/c2_p1_7_vsc_done.png)
+![](/images/c1_p1_7_vsc_done.png)
 いま時点だと、ターミナルは「 pwsh 」という表示がされてないかな？
-![](/images/c2_p2_5_pwsh.png)
+![](/images/c1_p2_5_pwsh.png)
 *もし、以前から VSCode 使っている人の場合ば、設定済のデフォルト CUI が表示されているかも*
 
 これは、現在このターミナルは PowerShell で立ち上がっている状態ということね。
 今回は pwsh ではなくて、さっきインストールした wsl を使用したいので、下記 ①〜③ の流れで wsl を起動しよう。
 （② の囲み方が分かりづらいけど、＋ の横の v みたいなアイコン押して〜）
-![](/images/c2_p2_6_wsl_sel.png)
+![](/images/c1_p2_6_wsl_sel.png)
 
 成功すると、さっきまで「 pwsh 」だったところが「 wsl 」になるよ！
 
@@ -388,7 +388,7 @@ pip install --upgrade pip
 ```
 
 一連の呪文を唱え終えたとき、コマンドラインはこんな感じになっていると思う。
-![](/images/c2_p3_1_terminal.png)
+![](/images/c1_p3_1_terminal.png)
 
 では、ここで少し説明🌷
 
@@ -491,5 +491,6 @@ Django の中では、「ログイン機能」や「作品管理」のような 
 ・・・という、いまやっている作業の立ち位置が分かりやすくなるかな、と思うよ。
 
 では、第２章！！
+
 一緒にがんばっていこ！！！
 
