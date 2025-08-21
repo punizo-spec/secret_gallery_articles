@@ -31,7 +31,7 @@ Python 3.x.x
 最近の PC なら python3 が入ってないことはないと思うけど、もしもここで「command not found」って出たら、Python3 が入っていない可能性大！
 ちゃちゃっとインストールしよう！
 
-::::details Python 3 のインストールはココを参照だよ！
+::::details python3 のインストールはココを参照だよ！
 
 ### Python3 が入ってない人。（Mac版）
 Homebrew を使ってインストールするのが簡単！
@@ -71,7 +71,7 @@ xcode-select --install
 
 :::
 :::message alert
-ちなみに、おそらくもう居ないとは思うんだけど、もしも python2 が入っている人がいた場合、Homebrew でインストールしていたら、下記コマンドでアプデして！python3 のバージョンが確認できたら、ここの項目は完了だよ。
+ちなみに、おそらくもう居ないとは思うんだけど、もしも python2 が入っている人がいた場合、Homebrew でインストールしていたら、下記コマンドでアップデートして！python3 のバージョンが確認できたら、ここの項目は完了だよ。
 ```bash
 brew update
 brew upgrade python
@@ -309,7 +309,7 @@ Japanese Language Pack
 けど、気になる人は chatGPT とか Gemini に聞けば雛形作ってくれると思う笑
 ::::
 
-### - ④ Python 3 の環境を整えよう
+### - ④ python3 の環境を整えよう
 このコマンドで、いま現在の python のバージョンを確認して！
 ```bash
 python3 --version
@@ -324,7 +324,7 @@ Python 3.x.x
 最近の PC なら python3 が入ってないことはないと思うけど、もしもここで「command not found」って出たら、Python3 が入っていない可能性大！
 さっき VSCode インストールした Microsoft Store でインストールできるから、ちゃちゃっとやっちゃって！！
 
-python 3 のバージョン確認が終わったら、環境設定最後のコマンド叩いてくれ！
+python3 のバージョン確認が終わったら、環境設定最後のコマンド叩いてくれ！
 ```bash
 sudo apt update && sudo apt install python3-venv
 ```
