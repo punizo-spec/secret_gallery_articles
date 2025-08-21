@@ -412,7 +412,7 @@ pip install --upgrade pip
 
 - ##### source venv/bin/activate
 そしてこの呪文で、さっき作った仮想空間を ON にする。
-仮想環境に入ると、ターミナルの先頭がこうなるはず！
+仮想環境に入ると、ターミナルの先頭が (venv) になるはず！
 ```bash
 (venv) punizo@ubuntu:~/django_workspace$
 ```
