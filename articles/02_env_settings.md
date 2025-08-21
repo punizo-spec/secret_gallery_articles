@@ -271,7 +271,7 @@ Japanese Language Pack
 ```
 
 （３）そうすると、拡張機能候補が出てくるので、地球儀アイコンの拡張機能をインストール
-![](/images/3m_2.vsc_ja_pack.png)
+![](/images/c2_p1_4_vsc_ja_pack.png)
 
 （４）インストールが完了すると、画面右下に[日本語に変更しますか？]と出てくるので、[Change Language and Restart]を押す！
 ![](/images/c2_p1_5_vsc_ja_set.png)
