@@ -262,7 +262,7 @@ class Game(models.Model):
 
 この事実だけで良い。
 
-**そのときに、username でログインするように「USERNAME_FIELD = "username"」って書いた**、ということも、余裕があったら心に留めておいてくれれば十分すぎるくらだよ！
+「**そのときに、username でログインするように「USERNAME_FIELD = "username"」って書いた**」ということも、余裕があったら心に留めておいてくれれば十分すぎるくらだよ！
 
 < models.py コード再掲>
 ```python
@@ -292,6 +292,13 @@ REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザ�
 
 
 
+
+
+## 05. settings.pyは設定ファイル（文字どおりすぎる…）
+## 06. makemigrations と migrate はセット商品です
+## 07. 我はギャラリーを統べる者、也。python3 manage.py createsuperuser
+## 08. Djangoには管理画面というものがあるんですよ
+## 📕 runserverのオマケ（エラー一覧）
 :::details Djangoが自動で用意してくれるフィールド一覧（"AbstractUser"の継承）
 
 実は、`AbstractUser` を継承すると、以下のようなフィールドが最初から付いてくるよ。
@@ -316,14 +323,4 @@ REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザ�
 :::
 
 
-
-
-
-
-
-## 05. settings.pyは設定ファイル（文字どおりすぎる…）
-## 06. makemigrations と migrate はセット商品です
-## 07. 我はギャラリーを統べる者、也。python3 manage.py createsuperuser
-## 08. Djangoには管理画面というものがあるんですよ
-## 📕 runserverのオマケ（エラー一覧）
 ## 🌵 おまけ 🌵 admin.pyのSG_USERのUSERSって……なんだこれ？
