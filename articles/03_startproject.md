@@ -290,15 +290,309 @@ REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザ�
 この管理ユーザーって、いまはとってもイメージしづらいから、第２章が全部終わってから、気になったらもう一度読んでみる軽さで進めてね🌻
 :::
 
-
-
-
-
 ## 05. settings.pyは設定ファイル（文字どおりすぎる…）
+
+「sg_user」アプリの models.py で、管理者ユーザーの設定が終わったね。
+今度は、作成した管理者ユーザーの情報を、Django に「これからは管理者、このモデルでいきますね」って教えてあげる設定をするよ〜。
+
+:::details settings.py に AUTH_USER_MODEL を設定する意味
+Django にはデフォルトの User モデル（django.contrib.auth.models.User）というものが最初から存在するんだけど、今回自分で作った CustomUser モデルを使用するためには、この「教えてあげる設定」が必要。<br>
+これを書かないと、Django 的には「え？管理者ユーザーっていつも（標準）の Userモデル使うに決まってるでしょ」って思ってしまうから、<br>
+もしもこの設定を忘れて、Django さんが管理者モデルを標準 User として記憶してもらったら、とっても大変！！<br>
+なぜなら、この管理者ユーザーは後から変えることができない！！！（……わけじゃないけど、変えるならプロジェクト作り直した方が手っ取り早いくらい面倒くさい！）
+だから、ここで忘れずに設定しよ。
+:::
+
+**使うファイルは settings.py**
+このファイルは、プロジェクト全体にかかる挙動を設定するよ。
+
+![](/images/c2_p3_8_settings.png)
+
+プロジェクトを開始してから、
+1. sg_user アプリを作成して
+2. 管理者ユーザーを設定した
+よね。だから、それを settings.py に追記する。
+
+まずは、ファイルの中から INSTALLED_APPS を探して。
+33行目くらいにあると思う。
+そして INSTALLED_APPS の一番最後に、「 sg_user 」を追加する。
+元々初期設定されていた django.contrib たちは Djangoの標準機能なので、ここでは触らなくていいよ。（コメントは任意。今回は説明のために入れておくね）
+
+```python
+INSTALLED_APPS = [
+    # Djangoの標準機能
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    # 自分が作ったアプリ（今回はログインできるユーザーを管理するアプリ）
+    "sg_user",
+]
+```
+こんな感じになったかな？
+
+そしたら次に、管理者ユーザーモデルを設定する。
+INSTALLED_APPS の下に MIDDLEWARE があるから、その下に追記しよう。
+
+```python
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+AUTH_USER_MODEL = "sg_user.CustomUser"
+```
+どうかな？こんな並びになった？
+これで設定はOK！次にいこう！！
+
+:::message
+何回かプロジェクトを作って慣れてきたら、settings.py へ AUTH_USER_MODEL の追記は、モデルを定義するより先に書くのが安全！
+いまはファイルの流れで理解して欲しいから、settings.py を後回しにしているだけだよ。
+:::
+
 ## 06. makemigrations と migrate はセット商品です
+06, 07 は一気に駆け抜けるよ！ここだけは途中離脱厳禁！！
+説明は全部後回し！！！
+
+ターミナルでコマンドを打て-------💥💥💥
+
+```bash
+python3 manage.py makemigrations
+```
+
+```bash
+python3 manage.py migrate
+```
+
+ターミナルはこんな感じになったかな！？？
+![](/images/c2_p3_9_migrate.png)
+
+ここでエラーが出たら、落ち着いて、下記２つを確認。
+1. (venv) がコマンドラインの先頭についている？
+2. コマンドの入力ミスはない？
+
+
+それでは、このままのノリで 07 にいく！！
+
 ## 07. 我はギャラリーを統べる者、也。python3 manage.py createsuperuser
+ここで全てが結実する！
+
+いっけぇーーーーーー！！！
+```bash
+python3 manage.py createsuperuser
+```
+
+コマンドラインで username 聞かれたら、好きな名前を入れて！
+password は入力しても、画面表示はされないよ！！
+成功したら successfully だ！！！
+
+![](/images/c2_p3_10_superuser.png)
+
+第２章の伏線全回収！！！
+1. アプリ作って
+2. 管理者モデル定義して
+3. settings.py で新しい自作 Userモデルを設定して
+4. マイグレートして
+5. スーパーユーザーを作成した
+
+素晴らしい完走だ・・・。
+
+しかし、ぷに蔵がぶっ飛ばしすぎて、「4、5 なんだ！？！？」ってなっていると思うので、説明させていただきます⭐️
+
+まず、この２つのコマンドの意味から。
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+- `makemigrations` : モデル定義（＝テーブル構造）を DB に反映させるため、保存用ファイルに変換します。「こういう形で保存しますね」という準備作業
+- `migrate` : makemigrations で保存用変換ファイルが作成されたので「DB に反映させます」という実行コマンド
+
+> 🟢 **ファイル作成して → 実行** 🟠
+
+> 🟢 **makemigrations → migrate** 🟠
+
+ここで、06パートのタイトル回収させていただく。
+
+> 🟢 **06. makemigrations と migrate はセット商品です**🟠
+
+作ったら、実行。
+これは完全ニコイチ！！
+覚えておいてほしいなーー。
+<br>
+そして次に、これ。
+```bash
+python3 manage.py createsuperuser
+```
+createsuperuser : スーパーユーザー権限をもつ管理ユーザーを作成します
+
+ちなみに、スーパーユーザーという言葉が出てきたので、ここで管理ユーザーの種類について説明しておくね。
+
+AbstractUser を継承して作成した場合、次のようなユーザー権限を表す以下のフィールドが、あらかじめ設定されているの。
+> 💠 **is_active : 現在有効（＝ログイン可能）なユーザーか否か**
+> 💠 **is_staff : 管理画面（admin/）に入れる権限を持つか**
+> 💠 **is_superuser : 管理画面において、操作に制限がないユーザーか否か（全権限持ち。権限チェックも無視される存在）**
+
+今回は createsuperuser ということで、「管理画面において、操作に制限がないユーザー」を作成したということ。
+会社でも、役職によってシステム権限が変わったりするじゃない？そんなイメージ！
+<br>
+あと、気になる人もいるかもしれないやつなんだけど・・・
+> manage.py ← ナニコレ？
+
+突然出てきたよね。startapp から突然登場したのよ。
+
+これはどんなときに使うのかというと、**Django プロジェクトに対して何かしらの操作を行いたいときに使用します！**
+
+さっきまでの例を見てみよう。
+```bash
+python3 manage.py startapp sg_user
+python3 manage.py runserver
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py createsuperuser
+```
+全部共通して「 python3 manage.py 」から始まっている。
+なぜなら manage.py は Django 操作の受付窓口のためです！！
+
+今まで実行してくれたコマンドは、こんな意味だったんだ。
+> python3 : python3 で実行する指令を出しますね
+> manage.py : manage.pyさん（窓口業務）
+> startapp sg_user : sg_user というアプリを開始したいな（→ 作成してくれる）
+> 
+> python3 : python3 で実行する指令を出しますね
+> manage.py : manage.pyさん（窓口業務）
+> runserver : ローカルサーバー起動して
+> 
+> python3 : python3 で実行する指令を出しますね
+> manage.py : manage.pyさん（窓口業務）
+> makemigrations : モデル定義のテーブル構造を DB に反映させるためのファイルを作成して
+
+全部、Django プロジェクトへの指示のために manage.py を経由しているよね。
+（ちなみにこのファイルは、startproject のときに自動生成されるファイルだ！）
+
+これも、なんとなーく「へー」と思っておいてくれればいいお話です🌻
+
+
 ## 08. Djangoには管理画面というものがあるんですよ
-## 📕 runserverのオマケ（エラー一覧）
+
+これまで管理ユーザーの作成していたよね。
+そして「管理画面」て言っていたじゃない？
+
+実際に、管理画面見てみたいよね！？
+
+見に行こう！！！まずは準備だ！！！
+
+使うファイルは admin.py だ！
+
+admin.py には、管理画面に表示させたいことを書くの。
+今回は、管画面上に CustomUser を表示させたいから、こんな風に書いていくよ。
+
+```python
+from django.contrib import admin
+from .models import CustomUser
+
+@admin.register(CustomUser)
+class CustomUserAdmin(admin.ModelAdmin):
+    pass
+```
+
+この書き方は、そのまま覚えちゃって！
+@admin.register(CustomUser) というデコレーターというものも付いているけど、これはいま時点では気にする必要ナシ！！
+
+1. Djangoの 管理画面機能のモジュールを読み込む
+2. 管理画面に表示させたい CustomUser モデル定義を読み込む
+3. 実際に、CustomUser を表示させるためのクラスを定義（@admin.register()もお忘れなく⭐︎）
+
+
+![](/images/c2_p3_11_admin.png)
+*VSCode で見たときはこんな感じになっているよ〜*
+
+
+ではここで、ローカルサーバーを起動🚀
+```bash
+python3 manage.py runserver
+```
+
+そしたら、下記 URL へ、飛べ！！！
+[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+
+ログインは、さっき createsuperuser で作成のときに入力した username と password を使用してね！
+
+こんな画面になっていると思う！
+
+![](/images/c2_p3_12_adminscreen.png)
+*SG_USER の表示がなかったら、admin.py のコードミスがあるかもしれない。もう一度、確認してみて？*
+
+Users の中に入ると、自分が作成した管理ユーザーが表示されていると思う。
+ここで、他の管理ユーザーを増やしたり、そのユーザーが superuser かどうかの設定をしたりもできる！
+
+管理画面まできたね！！
+確実に、ゼロだったプロジェクトを育てあげた成果だよ！！
+
+すごい、すごいっっ🎉🎉🎉
+
+
+## 🌵 おまけ 🌵 admin.pyのSG_USERのUSERSって……なんだこれ？
+管理画面で、ここ、不思議に思わなかった？
+![](/images/c2_p3_13_users.png =280x)
+
+ぷに蔵、最初ここに違和感めちゃくちゃ感じたのよ。
+だって、Users なんてモデル定義してないじゃん？て。
+
+でもこれ、Django の基本的な機能部分にも関係してくる話なの。
+
+さっき settings.py に
+```python
+AUTH_USER_MODEL = "sg_user.CustomUser"
+```
+って設定したでしょ。
+
+これで Django は User モデルを sg_user.CustomUser だと認識はしてくれた。
+だけど Django 内部では、Userモデル＝sg_user.CustomUser になっただけで、Userモデルが上書きされたわけではない。
+
+Django の管理画面は、モデル名をそのまま表示するわけじゃなくて、
+1. デフォルトで CustomUser を 「User」っていう単語として解釈して
+2. 英語複数形に修正して（ Users ）表示
+というステップを踏んでいるの。
+
+だから、CustomUser モデルが正しく定義されても、ここの表示は Users になっているのよ。
+これを修正して「ユーザー」とかにもできる。
+
+:::details Users 表示を「ユーザー」に修正したいひと向け
+manage.py の CustomUser の下部にコード追加。これだけ。
+
+```python
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+    # ログインには username を使います
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = "ユーザー"
+        verbose_name_plural = "ユーザー一覧"
+```
+
+ファイルを保存したら、管理画面をリロード。
+変更された？<br>
+でも、表示が変わるだけなので、これをやらなくても、秘密のプライベートギャラリー上では何も問題ない笑
+:::
+
+
+## 📕 AbstractUser と AbstractBaseUser ２つの選択肢
+ここは、入門よりは少し進んだ場合のお話。
+管理ユーザーの作成のために Django さんは、AbstractUser の他に、AbstractBaseUser というモデルも準備してくれている。
+
 :::details Djangoが自動で用意してくれるフィールド一覧（"AbstractUser"の継承）
 
 実は、`AbstractUser` を継承すると、以下のようなフィールドが最初から付いてくるよ。
@@ -323,4 +617,3 @@ REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザ�
 :::
 
 
-## 🌵 おまけ 🌵 admin.pyのSG_USERのUSERSって……なんだこれ？
