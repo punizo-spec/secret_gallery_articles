@@ -186,31 +186,22 @@ secret_gallery と同じ階層に sg_user がフォルダが増えている！
 ```python
 # sg_user/models.py
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 
 class CustomUser(AbstractUser):
-    # メールアドレスは将来的に使うかもしれないので、一応残しておきます
-    email = models.EmailField(
-        max_length=254,
-        blank=True,
-        null=True,
-        unique=True)
-
     # ログインには username を使います
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
 
     def __str__(self):
         return self.username
-
 ```
 
-はじめて触るファイルが出てきたよ！！
+はじめて触るファイルが出てきたね！
 
 > #### models.py
 
-あまり馴染みがないファイル名だと思う。Python 学習では出てこないファイル名だよね。
-それではまず、公式説明を読んでみよう！基本的には公式は絶対なので、（一応）確認してみる。
+あまり馴染みがないファイル名だけど、Django でデータベースを扱ううえで、とても重要なファイルになるよ。
+それでは、公式説明を読んでみよう！基本的には公式は絶対なので、（一応）確認してみる。
 
 >英語版：A model is the single, definitive source of information about your data. It contains the essential fields and behaviors of the data you’re storing. Generally, each model maps to a single database table.[（django公式 英語版より）](https://docs.djangoproject.com/en/5.2/topics/db/models/)
 >日本語版：モデルは、データに関する唯一かつ決定的な情報源です。あなたが保持するデータが必要とするフィールドとその動作を定義します。一般的に、各モデルは単一のデータベースのテーブルに対応付けられます。[（django公式 日本語版より）](https://docs.djangoproject.com/ja/5.2/topics/db/models/)
@@ -250,10 +241,54 @@ class Game(models.Model):
 理由は長く、ややこしい話になるので割愛ｗ
 :::
 
-例えば、さっき上記に書いたコード。
-
+例えば、さっき上記に書いたコードの構造を見てみると・・・
 ![](/images/c2_p3_7_cumodel.png)
+1行目：Djangoの「管理ユーザー機能の土台（モジュール）」を読み込む
+3行目：CustomUser クラスを定義。AbstractUser を継承して、「ログインできる人」のモデルを作っていく宣言
+5行目以降は、CustomUser クラスが持つメソッドなどを書く
 
+基本的な構造はいつも同じ。
+> 1. クラスやメソッドが必要とするモジュールを読み込んで
+> 2. クラス名を定義したうえで
+> 3. 継承するクラスを定義して
+> 4. 定義したクラスの中に、メソッドを書いていく
+
+ぷに蔵の肌感覚的に、Django をはじめて触ったとして、この最初のタイミングで models.py に AbstractUser を使ったモデル定義は難しすぎる！！！
+だから、今時点で何か覚える必要ってまったくなくて、今回はコピペもしくは写経（コードをただ書き写すこと）で良いと思うの。
+
+第２章の最後にちょっとだけ読み物として、この「 AbstractUser 」について書いたんだけど、改めて考えてみても、結構難しいなと感じたのよ。
+なので、今回ここで理解してもらいたいことは１つだけ！
+> AbstractUser クラスというものを継承して、管理画面にログインできるユーザーを作成する機能を作った
+
+この事実だけで良い。
+
+**そのときに、username でログインするように「USERNAME_FIELD = "username"」って書いた**、ということも、余裕があったら心に留めておいてくれれば十分すぎるくらだよ！
+
+< models.py コード再掲>
+```python
+# sg_user/models.py
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+    # ログインには username を使います
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.username
+```
+
+:::details AbstractUserってなに？（書いてみたけど、読まなくても良いかも）
+AbstractUser は、Djangoが用意している「ログインに必要な機能（パスワード、権限、最終ログインなど）」が最初から入った“ユーザーの雛形”のこと。
+継承するだけで、管理画面にログインできる人を自分のプロジェクト用に持てるの。
+標準装備のフィールドがいくつかあるんだけど、その標準に追加したいフィールドがあれば、自分で追加できることが強み。
+（フィールド例：username(必須), password(必須), email(任意), ファーストネーム(任意), ラストネーム(任意) ...and more）
+今回は中身を増やさず“雛形を受け継いだだけ”。<br>
+USERNAME_FIELD = "username"　← こう書くと、今回作成したユーザーは、username を使用してログインすることになる。
+AbstractUser は username + password でのログインがデフォルトだから書かなくても良いんだけど、後から見たときに明示的に分かりやすいから書いておいただけ（AbstractUser は、他の任意のフィールドを使用したログインに変更することも可能。email + password とかね）。<br>
+REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザー作成のときに入力が必要ではありません、という意味。<br>
+この管理ユーザーって、いまはとってもイメージしづらいから、第２章が全部終わってから、気になったらもう一度読んでみる軽さで進めてね🌻
+:::
 
 
 
