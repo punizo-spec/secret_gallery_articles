@@ -33,7 +33,7 @@ python3 manage.py startapp sg_pieces
 ・・・新しいアプリは作成されたかな？
 VSCode 上では、こんな感じになっていると思うよ。
 
-![](/images/c2_p3_12_adminscreen.png)
+![](/images/c3_p1_1_newapp.png)
 
 
 ## 02. コピペで３分。「こんにちは、〇〇さん」
