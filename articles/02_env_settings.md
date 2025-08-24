@@ -25,8 +25,8 @@ python3 --version
 % python3 --version
 Python 3.x.x
 ```
-こんな感じにバージョン情報が表示されている？
-「.x.x」 ←この部分には数字が入っているよ。バージョンの数値だから、いちばん左側が 3 ならOK！（このバージョンの並びにも明確な意味があるんだ）
+「.x.x」 ←この部分には数字が入っているよ（バージョンの数値）。
+Python 3.10 以上（できれば 3.12か3.13）推奨だよ。
 
 最近の PC なら python3 が入ってないことはないと思うけど、もしもここで「command not found」って出たら、Python3 が入っていない可能性大！
 ちゃちゃっとインストールしよう！
@@ -60,7 +60,7 @@ brew --version
 これで 『Homebrew >=4.x.x』とか表示されて、Homebrew が入ったことが確認できたら次に進む準備OK！
 
 :::message
-💡 もし Permission denied と出たら？
+**もし Permission denied と出たら？**
 いったんターミナルを閉じて、もう一度やり直してみて！それでもうまくいかない場合は、Xcodeの開発ツールが未インストールってこともあり得る。
 下記コマンドでエラーが解消するか試してみてほしい。
 ```bash
@@ -71,17 +71,18 @@ xcode-select --install
 
 :::
 :::message alert
-ちなみに、おそらくもう居ないとは思うんだけど、もしも python2 が入っている人がいた場合、Homebrew でインストールしていたら、下記コマンドでアップデートして！python3 のバージョンが確認できたら、ここの項目は完了だよ。
+ちなみに、おそらくもう居ないとは思うんだけど、もしも python2 が入っている人がいた場合、Homebrew でインストールしていたら、下記コマンドでアップデートして！python3.10 以上 のバージョンが確認できたら、ここの項目は完了だよ。
 ```bash
 brew update
-brew upgrade python
+brew upgrade python3
 ```
 :::
 
 ### 2. Homebrew を使って Python3 をインストール
-Homebrew が入ったので、Python3 を入れる！このコマンドだよ。
+Homebrew が入ったので、今度は Python3 を入れる！
+このコマンドだよ。
 ```bash
-brew install python
+brew install python@3.12
 ```
 
 インストールが完了したら、再び python3 のバージョン確認。
@@ -318,19 +319,26 @@ python3 --version
 ```bash
 Python 3.x.x
 ```
-「.x.x」 ←この部分には数字が入っているよ。
-バージョンの数値だから、いちばん左側が 3 ならOK！（このバージョンの並びにも明確な意味があるんだ。気になるときは調べてみてね）
+「.x.x」 ←この部分には数字が入っているよ（バージョンの数値）。
+Python 3.10 以上（できれば 3.12か3.13）推奨だよ。
 
-最近の PC なら python3 が入ってないことはないと思うけど、もしもここで「command not found」って出たら、Python3 が入っていない可能性大！
-さっき VSCode インストールした Microsoft Store でインストールできるから、ちゃちゃっとやっちゃって！！
-
-python3 のバージョン確認が終わったら、環境設定最後のコマンド叩いてくれ！
+:::details もしもここで「command not found」って出た人はコチラ
 ```bash
-sudo apt update && sudo apt install python3-venv
+sudo apt update && sudo apt install python3 python3-pip python3-venv
 ```
-このコマンドで、今回の環境に必要な設定が完了するよ！！！
-これは管理者権限じゃないと実行できないコマンドだから、パスワードやPIN入力を求められるかもしれない。それには応じてあげてください。
-あと、途中でコマンドラインから「（Y/n）？」みたいな質問されたら、「 Y ＋ enter 」で進めて！あやしくないよ、怖くないやつだよ。
+このコマンドで Python3 本体と、必要なパッケージ（pip, venv）をまとめて入れるよ。
+**ここで pip, venv のインストールも完了した人は、次の「 sudo apt update && sudo apt install python3-pip python3-venv 」は省略ね**
+:::
+
+Python3 が入っていた人も、pip と venv が無いことがあるから、環境設定最後にこのコマンドを叩いておこう！
+```bash
+sudo apt update && sudo apt install python3-pip python3-venv
+```
+このコマンドで、今回の環境に必要な設定が完了するっ！！！
+> **apt でインストールされるPython3 のバージョンは Ubuntu のリポジトリ（バージョンみたいなもの）次第なんだけど、基本的に 3.10 以上が入るはずよ！**
+
+あと、これらのコマンドは管理者権限じゃないと実行できないコマンドだから、パスワードやPIN入力を求められるかもしれない。それには応じてあげてね。
+それと、途中でコマンドラインから「（Y/n）？」みたいな質問されたら、「 Y ＋ enter 」で進めて！あやしくないよ、怖くないやつだよ。
 
 これで、すべてのインストールが完了した！
 環境設定たいへんだったね！！お疲れさまでした！

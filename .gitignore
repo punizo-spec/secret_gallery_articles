@@ -1,2 +1,6 @@
 node_modules
 .DS_Store
+base_user.py
+mdels.py
+usermodel.md
+validators.py
