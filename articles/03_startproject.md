@@ -52,7 +52,7 @@ pip --version
 % pip --version
 pip 25.2 from /Users/punizo/django_workspace/venv/lib/python3.12/site-packages/pip (python 3.12)
 ```
-今回作成した「 django_workspace 」フォルダ内の「 venv 」の中の pip が「 python3.12 」を使用していることが分かる。
+今回作成した「 django_workspace 」フォルダー内の「 venv 」の中の pip が「 python3.12 」を使用していることが分かる。
 
 ここらへんをチェックして、依存関係を把握していくことが大切だよ。<br>
 もしここで python2.x とか出てきたら、python3.x にアップデートしないと危険！
@@ -68,8 +68,8 @@ django-admin startproject secret_gallery
 CUI 上は、おそらく何も変わっていないように見える。だけどディレクトリ内には Django プロジェクトが作成されているはずだよ。
 下記を参考に、VSCode で Django プロジェクトを開いてみるんだ！！
 ![](/images/c2_p1_1_vsc.png)
-① → ② の順番でクリックすると、フォルダ選択がポップアップ表示されるので、自分が作ったフォルダを開いてみてくれ。
-そうすると、こんなフォルダとファイルが表示されてないかな？
+① → ② の順番でクリックすると、フォルダー選択がポップアップ表示されるので、自分が作ったフォルダーを開いてみてくれ。
+そうすると、こんなフォルダーとファイルが表示されてないかな？
 ![](/images/c2_p1_2_project.png =450x)
 
 これが Django プロジェクトの全貌だ！！！（現時点）
@@ -144,7 +144,7 @@ python manage.py runserver
 python3 manage.py startapp sg_user
 ```
 
-secret_gallery と同じ階層に sg_user がフォルダが増えている！
+secret_gallery と同じ階層に sg_user がフォルダーが増えている！
 ![](/images/c2_p3_5_project.png =450x)
 アプリの作成成功！！
 
