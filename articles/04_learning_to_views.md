@@ -701,9 +701,9 @@ Django は、settings.py の DATABASES の ENGINE の設定を見て「どのRDB
  🫛 豆知識  
 世の中には「MVCアーキテクチャ」という考え方があるよ（こちら様が、思想の本家）。  
 
-- M ： Model  
-- V ： View  
-- C ： Controller  
+- **M ： Model** → Django では models.py  
+- **V ： View** → 見た目（Django では templates/*.html ）  
+- **C ： Controller** → 機能（Django では views.py ）  
 
 Django もその考え方をベースにしているんだけど、Controller にあたる部分を「URLconf（ルーティング）」が担っているから「MTV」と呼んでいるのだよね。
 :::
