@@ -18,5 +18,4 @@ published: false # trueを指定する
 ## 09. 悲しみのデリート作業。（DeleteView）
 ## 10. いつだって、キミはここに戻って来られるんだ。（本当の現場のdelete作業）
 ## 11. いくぞ！ViewのフィナーレはTemplateViewで華麗に締める！
-## 📕　結局『urls.py』ってなんだったんだ？
 

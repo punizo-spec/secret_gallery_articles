@@ -52,7 +52,7 @@ pip --version
 % pip --version
 pip 25.2 from /Users/punizo/django_workspace/venv/lib/python3.12/site-packages/pip (python 3.12)
 ```
-今回作成した「 django_workspace 」フォルダー内の「 venv 」の中の pip が「 python3.12 」を使用していることが分かる。
+今回作成した「 django_workspace 」フォルダ内の「 venv 」の中の pip が「 python3.12 」を使用していることが分かる。
 
 ここらへんをチェックして、依存関係を把握していくことが大切だよ。<br>
 もしここで python2.x とか出てきたら、python3.x にアップデートしないと危険！
@@ -68,8 +68,8 @@ django-admin startproject secret_gallery
 CUI 上は、おそらく何も変わっていないように見える。だけどディレクトリ内には Django プロジェクトが作成されているはずだよ。
 下記を参考に、VSCode で Django プロジェクトを開いてみるんだ！！
 ![](/images/c2_p1_1_vsc.png)
-① → ② の順番でクリックすると、フォルダー選択がポップアップ表示されるので、自分が作ったフォルダーを開いてみてくれ。
-そうすると、こんなフォルダーとファイルが表示されてないかな？
+① → ② の順番でクリックすると、フォルダ選択がポップアップ表示されるので、自分が作ったフォルダを開いてみてくれ。
+そうすると、こんなフォルダとファイルが表示されてないかな？
 ![](/images/c2_p1_2_project.png =450x)
 
 これが Django プロジェクトの全貌だ！！！（現時点）
@@ -144,7 +144,7 @@ python manage.py runserver
 python3 manage.py startapp sg_user
 ```
 
-secret_gallery と同じ階層に sg_user がフォルダーが増えている！
+secret_gallery と同じ階層に sg_user がフォルダが増えている！
 ![](/images/c2_p3_5_project.png =450x)
 アプリの作成成功！！
 
@@ -222,7 +222,7 @@ MySQL や PostgreSQL を使ったことがある人は、「テーブル」を�
 ここのフィールドは「文字列」・保存文字数は50・入力必須、ここのフィールドは「数値」・負の数も可能・default値は0、みたいに、ひとつひとつ設定したテーブルを集合させたものが、１データベースの構成要素になるよ。<br>
 :::
 
-データベースを作成した後は、テーブルを作成してデータを保存する箱を作るんだけど、その「箱」を作るためのツールが Django の場合には models.pyなの。
+データベースを作成した後は、テーブル（データを保存する箱みたいなもの）を作るんだけど、その「箱」を作るためのツールが Django の場合には models.pyなの。
 
 簡単に言うと、**models.py に「テーブルの設定詳細（モデル定義）」を書くと、Django がその定義どおりにデータベースにテーブルを作ってくれる**んだ。
 
@@ -482,16 +482,18 @@ python3 manage.py createsuperuser
 ## 08. Djangoには管理画面というものがあるんですよ
 
 これまで管理ユーザーの作成していたよね。
-そして「管理画面」て言っていたじゃない？
+そして、さっきから当然のように「管理画面、管理画面」言っていたじゃない？
 
-実際に、管理画面見てみたいよね！？
+そうなの。Django は、デフォルトで管理画面を準備してくれているの！
+実際に、見に行こう！！！
 
-見に行こう！！！まずは準備だ！！！
+その前に、まずは設定だ！！！
 
-使うファイルは admin.py だ！
+使うファイルは sg_user アプリ内の admin.py だよ。
+（admin.py は、アプリごとに存在するファイル）
+このファイル（ admin.py ）に、「このモデルを管理画面に表示させる」と書いて Django に伝えることで、管理画面に表示されるようになるのね。
 
-admin.py には、管理画面に表示させたいことを書くの。
-今回は、管画面上に CustomUser を表示させたいから、こんな風に書いていくよ。
+今回は、管画面上に CustomUser を表示させたいから、以下のように書いていくよ！
 
 ```python
 from django.contrib import admin
@@ -503,7 +505,7 @@ class CustomUserAdmin(UserAdmin):
     pass
 ```
 
-この書き方は、いまはそのまま「こういうものなんだな」って思っておいて！
+この書き方は、いまはそのまま「こういうものなんだな」と思っておいて！
 
 1. Django の管理画面機能（admin モジュール）を読み込む
 2. Django 標準の User 管理機能を持つクラス（UserAdmin）を読み込む
@@ -541,7 +543,7 @@ Users の中に入ると、自分が作成した管理ユーザーが表示さ�
 すごい、すごいっっ🎉🎉🎉
 
 
-## 🌵 おまけ 🌵 admin.pyのSG_USERのUSERSって……なんだこれ？
+## 🌵 おまけ 🌵 管理画面の SG_USER の USERS ……なんだこれ？
 管理画面で、ここ、不思議に思わなかった？
 ![](/images/c2_p8_13_users.png =280x)
 
@@ -568,7 +570,7 @@ Django の管理画面は、モデル名をそのまま表示するわけじゃ�
 これを修正して「ユーザー」とかにもできる。
 
 :::details Users 表示を「ユーザー」に修正したいひと向け
-manage.py の CustomUser の下部にコード追加。これだけ。
+sg_user/models.py の CustomUser の下部にコード追加。これだけ。
 
 ```python
 from django.contrib.auth.models import AbstractUser
@@ -590,115 +592,3 @@ class CustomUser(AbstractUser):
 変更された？<br>
 でも、表示が変わるだけなので、これをやらなくても「秘密のプライベートギャラリー」上では何の問題もない笑
 :::
-
-
-## 📕 標準User と AbstractUser と AbstractBaseUser ３つの選択肢
-ここでは、入門よりは少し進んだときに参考になるかもしれない小話を少し。
-
-管理ユーザー作成のために、今回は AbstractUser を継承したわけなんだけど、Django が準備している Userモデルは、実のところ３種類ある。
-- 標準 User
-- AbstractUser
-- AbstractBaseUser
-
-それぞれに特徴があるよ。
-まず、`標準User`と `AbstractUser` が標準装備されているフィールド構成は、こうなっている。
-| フィールド名 | 説明 | null / blank | default |
-|--------------|------|--------------|---------|
-| `id` | 主キー（自動） | ❌ / ❌ | 自動生成 |
-| `username` | ログイン時のユーザー名 | ❌ / ✅ | なし（必須） |
-| `email` | メールアドレス | ✅ / ✅ | 空欄OK |
-| `password` | ハッシュ化されたパスワード | ❌ / ❌ | なし（必須） |
-| `first_name` | ファーストネーム | ❌ / ✅ | 空欄OK |
-| `last_name` | ラストネーム | ❌ / ✅ | 空欄OK |
-| `is_active` | 利用可能ユーザーかどうか | ❌ / ❌ | `True` |
-| `is_staff` | 管理画面に入れるか | ❌ / ❌ | `False` |
-| `is_superuser` | 全権限持ってるか | ❌ / ❌ | `False` |
-| `date_joined` | 登録日時 | ❌ / ❌ | `timezone.now` |
-| `last_login` | 最後にログインした日時 | ✅ / ❌ | `None` |
-| `groups` / `user_permissions` | パーミッション管理用 | ✅ / ✅ | 空リスト |
-
-※ `null=True`は**DBでNULLを許可する**、`blank=True`は**フォームで空欄を許可する**の意味
-
-そのため、`標準Userモデル` と `AbstractUserモデル`を継承すると、これらフィールドが自動で用意される。
-
-標準Userモデルを使用する場合には、settings.py に "AUTH_USER_MODEL" の設定は不要。そのため、 "AUTH_USER_MODEL" の指定がないと、models.py にカスタムユーザーモデルを定義していても、それを認識されずに、標準Userモデルが使用される。
-だから、カスタムユーザーを作成するときには、settings.py に、カスタムユーザー作成より先に "AUTH_USER_MODEL" を設定しておくことが安全なの。
-
-**フィールドが同じなら、標準User でいいんじゃない？**
-
-そんな疑問を持った人。正解。そうなんだよ。
-でも、その前提は「機能がすべて同じ」であることが条件となる。
-
-AbstractUser にできて、標準User にできないこと。
-それは、**ログインフィールドの変更**。
-今回作成したカスタムユーザーでは、最初から備わっている username でログインする機能を使用したよね。
-だけど、実際に現場でプログラム開発するときには、username ではなく「 email でログインしたい」や「社員番号でログインしたい」などの希望が出てくるかもしれない。そんな要望が出たときに、標準Userモデルでは対応できない。
-
-Django をはじめて触る人が、はじめのプロジェクトを作成する……という目的だけであれば、標準Userモデルで十分。
-だけど本記事では、そこをあえて捨てて、AbstarctUserモデルの継承を行わせてもらった。
-なぜなら、より実践に近いテクニックを、少しずつ散りばめておきたいと思ったから。
-
-そして、Django 公式ドキュメントでも、カスタムユーザーを作成することを推奨しているしね。
-> **Using a custom user model when starting a project**
-> If you’re starting a new project, you can set up a custom user model that behaves identically to the default user model by subclassing AbstractUser:（[Djnago 5.2公式](https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project)）
->
-> だいぶ優しい口調で書くようになったけど、Django 4.2の頃は「it’s highly recommended to set up a custom user model」と、かなり強めの口調で推奨していたよ（[Djnago 4.2公式](https://docs.djangoproject.com/en/4.2/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project)）
->
-
-これを踏まえると、もしも今後、ユーザーモデルを拡張する予定がある場合には、AbstractUser を使用して、最初にカスタムユーザーを作る。
-
-「いやいや。個人で楽しむためのプロジェクトで、拡張なんか絶対に必要ない！」と断言できる場合には、標準Userモデルを使用するという選択ができるよね。
-
-::::message
-**プロジェクトの途中でカスタムユーザーを変更することは、まず出来ない** と思っておいた方がいい。実際、技術的な話では「できる」。
-けど、色々手動で直さないといけなくなるから大変すぎるし、ごちゃごちゃになった挙句「なんで何やってもサーバー起動しなくなったの・・・？」となって、最悪プロジェクトが修復できなくなる可能性も高い！
-::::
-
-##### 🟦 AbstractUser と AbstractBaseUser
-
-標準Userモデルと AbstractUserモデルの違いは分かってもらえたとして、次の選択肢が出てくる。
-- AbstractBaseUser
-
-AbstractUser と AbstractBaseUser は、名前はとても似ているけれど、これは劇薬。  
-マジで、“化け物”だと思ってくれていい。
-
-AbstractBaseUserモデルは、基本的に実装されたフィールドは、ほぼない。
-
-AbstractBaseUser が標準装備しているフィールドは
-> password = models.CharField(_("password"), max_length=128)
-> last_login = models.DateTimeField(_("last login"), blank=True, null=True)
-
-だから、自分で自由にフィールドを設計できて、識別フィールド（USERNAME_FIELD）も自分で決めて設計できる。
-
-これを「自由」と取るか「ただならぬ壁」と取るか・・・。
-
-
-時々、技術ブログで見かける「**Djangoはカスタムユーザーで AbstractBaseUser を推奨している**」という意見。
-これは、半分正しくて、半分間違えていると思う。
-
-Djangoは「カスタムユーザーモデル」を作ることを推奨はしているけれど、
-その継承元は「 AbstractUser か AbstractBaseUser のどちらかをプロジェクト要件に合わせて選びましょう」というトーンで書かれている（・・・と、公式ドキュメントからは読めると思う）。
-
-おそらくこれは、現場経験のあるエンジニアさんが「もうコレ一択！」と判断している背景にあるんだと思う。
-ガチガチに要件が定まっている依頼案件なら、たしかに自由度が高い AbstractBaseUser をベースにした方が、後々の拡張性が高くて合理的だからね。
-そして、AbstractUser は username というフィールドがあることが前提となる設計
-
-だけど、下手に AbstractBaseUser がなんたるかを知らずに触るのは、劇薬中の劇薬。
-なんせこのUserモデル、認証バックエンドを自分で書く必要がある。
-ログイン機能そのものは備わっているけれど、  認証のコアとなるバリデーションなどは、自分で実装する必要がある。
-
-それどころか、ユーザー生成のためのカスタムマネージャが必要（フィールドが標準User相当なら UserManager 流用可／違うなら BaseUserManager を継承して create_user / create_superuser を実装）。
-
-さらに、権限機能が欲しければ PermissionsMixin を付与（is_superuser 等が入る）。管理サイト用に is_staff も自分で用意する必要がある（通常はPermissionsMixinで作成）。
-
-カスタムユーザーを、AbstractBaseUser を継承して作りたい！自分を成長させたい！！という人は、ぜひ作るべきだと思う！！！
-たくさん間違えて、失敗して、覚えてほしい。
-ぷに蔵も初めて作ったとき、あまりに意味が分からなさすぎて、泣きそうになった。
-
-だけど、「しばらくはそこまでじゃなくて大丈夫〜。標準フィールド＋α で事足りるし」と思っているのなら、それも賢い選択。
-AbstractUser には、自分が希望するフィールドを追加できるし、標準フィールドの振る舞いをオーバーライドすることも可能だからね。
-（ログイン認証を`username`ではなく、`email`や`社員番号`にすることだって可能！）
-
-
-自分が携わるプロジェクトにおいて、どのモデルがそのプロジェクトに一番適しているのか……
-それを、**初回マイグレート前**に考えておくことが、いちばん大切だと思う。
