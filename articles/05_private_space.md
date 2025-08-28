@@ -820,7 +820,19 @@ class GalleryPieceForm(forms.ModelForm):
         return img
 ```
 
-create.html は変更と追加箇所のみ記載
+:::message
+**def clean_image(self)？**
+画像アップロードって「想定外のサイズ」「画像じゃないファイル」が飛んでくる可能性が高いのよ。
+開発環境だと自分しか触らないけど、本番環境だと利用者が自由にアップできるから、ここで制御入れておかないと、危険なファイルや大容量のファイルがアップロードされたりする可能性がゼロじゃない！むしろ、可能性は高め！（画像ファイルにだって、PDF にだって、テキストファイルにだって、ウイルスは仕込めるからね⚠️）
+
+この関数は「追加のバリデーション」だから、書かなくてもアプリは動く。
+でもね、もしもルールに合わないファイルをアップロードしようとしたとき、フォーム上でエラーが表示されて、 DB へは保存されない仕組みになるんだ。
+
+Django の ImageField は最低限のバリデーションはしてくれている。
+だけど、独自ルールをプラスして ModelForm 経由のデータでも def clean_XXX() でチェックするのが、現代セキュリティのセオリー！
+:::
+
+create.html は、変更と追加箇所のみ記載
 ```html
 <!-- sg_pieces/templates/sg_pieces/create.html -->
   <!-- 重要：画像アップロードフォームは 必ず enctype="multipart/form-data" を付ける！付けないと動かない -->
@@ -838,16 +850,291 @@ create.html は変更と追加箇所のみ記載
 
 これで、画像を保存する土壌は出来上がり！
 
+## 07. 登録作品たちを並べてみるは ListView
+
+```html
+<!-- sg_pieces/templates/sg_pieces/index.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー TOP{% endblock %}
+{% block content %}
+
+      <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+      <div class="list-group d-grid gap-3 mx-auto text-center" style="max-width: 300px;">
+        <a href="{% url 'piece_create' %}" class="list-group-item list-group-item-action">作品を登録する</a>
+        <a href="{% url 'piece_list' %}" class="list-group-item list-group-item-action">作品を確認する</a>
+      </div>
+
+{% endblock %}
+```
+
+さらに、index.html ファイルをコピーして、ファイル名は list.html に変更。
+それを、以下に書き直してみよう。
+```html
+<!-- sg_pieces/templates/sg_pieces/list.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー List{% endblock %}
+{% block content %}
+
+  <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+    <ul class="list-group list-group-flush mx-auto mt-4" style="max-width: 400px;">
+      {% for piece in pieces %}
+        <li class="list-group-item">
+          {{ piece.id }} {{ piece.name }}
+        </li>
+      {% empty %}
+        <li class="list-group-item">まだ作品が登録されていません😢</li>
+      {% endfor %}
+    </ul>
+
+{% endblock %}
+```
+
+あまり馴染みのない使い方をされている、お馴染み for~ が出てきているよ！
 
 
-## 07. 登録された作品たちを並べてみるは ListView
+```python
+# sg_pieces/urls.py
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+from . import views
 
-## 06. 間違い発見！！修正View はあるのか？
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('create/', views.GalleryPieceCreateView.as_view(), name='piece_create'),
+    path('list/', views.GalleryPieceListView.as_view(), name='piece_list'),
+]
+
+# ★DEBUG時のみ、/media/ をDjangoが直接配信
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+views.py に ListView を継承してクラスを作成
+```python
+# sg_pieces/views.py
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView
+from .models import GalleryPiece
+from .forms import GalleryPieceForm
+
+def index(request):
+    return render(request, "sg_pieces/index.html")
+
+class GalleryPieceCreateView(CreateView):
+    model = GalleryPiece
+    template_name = "sg_pieces/create.html"
+    form_class = GalleryPieceForm
+    success_url = reverse_lazy("index")
+
+class GalleryPieceListView(ListView):
+    model = GalleryPiece
+    template_name = "sg_pieces/list.html"
+    context_object_name = "pieces"
+    ordering = ["id"]
+    paginate_by = 10
+```
+ListView の最小構成は model と template_name の指定だけで良いんだけど、今回は少し機能を追加。
+> - **`context_object_name = "pieces"`**　オブジェクトに名前を付けると、テンプレートファイル側では「 object_list 」または「 pieces 」（指定した名前）のどちらでも受け取ることができるようになる。表示させるときは、{% for piece in object_list（/pieces） %}…{% endfor %}を使うよ。
+> - **`ordering = ["id"]`**　id が小さい方から順番に並ぶよ。大きい方から並べたいときんは ["-id"] にしてみてね。
+> - **`paginate_by = 10`**　テンプレートファイル側で10件ずつ表示させる。あとで実装するよ。
+
+
+これで、ブラウザリロードだぁあ！！！
+
+**でん！！**
+![](/images/c4_p6_11_index.png =580x)
+
+**ででん！！！**
+![](/images/c4_p6_12_list.png =580x)
+
+
+・・・・・・立派に並んでおる・・・
+
+
+が・・・・・・・・
+
+
+これでは何も発展しないね笑
+
+
+やっぱり、リストとして並ぶなら、
+> - データの詳細を見たり
+> - データの編集ができたり
+> - データの削除ができたり
+
+したいよね！！！
+
+
+したいなら、作っちゃおう YO ⭐️
+
+
+それでは、最初にそれぞれのリンクだけ、すべて設置してしまおう！
+ここからは、DetailView / UpdateView / DeleteView まで、ノンストップでいくぞ！！！
+振り落とされるな！！！
+
+挫けそうになったら、ガンガンコピペで良いんだよ！！
+頭より手を動かしていこう！！考えるのは後からでもできるよ！
+心に火がついているうちに駆け抜けるぞ🔥
+
+
+♦️ リストに「画像表示」＋ 「詳細・編集・削除」のリンクを追加
+```html
+<!-- sg_pieces/templates/sg_pieces/list.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー List{% endblock %}
+{% block content %}
+
+  <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+    <ul class="list-group list-group-flush mx-auto mt-4" style="max-width: 400px;">
+      {% for piece in pieces %}
+        <li class="list-group-item">
+          {{ piece.id }} {{ piece.name }}
+        <span class="float-end">
+          <!-- 画像のサムネイル表示 -->
+          {% if piece.image %}
+          <img src="{{ piece.image.url }}" alt="{{ piece.name }}" style="height:40px; width:40px; object-fit:cover; border-radius:6px;">
+          {% endif %}
+          <!-- リンク表示 -->
+          <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
+          <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-info btn-sm">編集</a>
+          <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
+        </span>
+        </li>
+      {% empty %}
+        <li class="list-group-item">まだ作品が登録されていません😢</li>
+      {% endfor %}
+    </ul>
+
+{% endblock %}
+```
+
+♦️ views.py に各クラスを配置（仮）
+```python
+# sg_pieces/views.py
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView, DetailView, UpdateView, DeleteView
+from .models import GalleryPiece
+from .forms import GalleryPieceForm
+
+def index(request):
+    return render(request, "sg_pieces/index.html")
+
+class GalleryPieceCreateView(CreateView):
+    model = GalleryPiece
+    template_name = "sg_pieces/create.html"
+    form_class = GalleryPieceForm
+    success_url = reverse_lazy("index")
+
+class GalleryPieceListView(ListView):
+    model = GalleryPiece
+    template_name = "sg_pieces/list.html"
+    context_object_name = "pieces"
+    ordering = ["id"]
+    paginate_by = 10
+
+class GalleryPieceDetailView(DetailView):
+    pass
+
+class GalleryPieceUpdateView(UpdateView):
+    pass
+
+class GalleryPieceDeleteView(DeleteView):
+    pass
+```
+
+
+♦️ urls.py でルーティング（現在の urls.py の urlpatterns = [] 部分のみ記載）
+```python
+# sg_pieces/urls.py
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('create/', views.GalleryPieceCreateView.as_view(), name='piece_create'),
+    path('list/', views.GalleryPieceListView.as_view(), name='piece_list'),
+
+    # 次回パートから順次実装。いまは仮置き
+    path('detail/<int:pk>/', views.GalleryPieceDetailView.as_view(), name='piece_detail'),
+    path('update/<int:pk>/', views.GalleryPieceUpdateView.as_view(), name='piece_update'),
+    path('delete/<int:pk>/', views.GalleryPieceDeleteView.as_view(), name='piece_delete'),
+]
+```
+
+♦️ 表示確認（暫定）
+どどん！！
+![](/images/c4_p6_13_listlink.png)
+
+うん。いい感じ！！
+ここに、リンク先の処理を追加していくね！
+
+:::message
+**今回のポイント： テンプレートタグ**
+
+**Django テンプレートタグについて**
+これまでに出てきた Django のテンプレートタグは、{% url 'piece_list' %} だったよね。
+「[03. つなげ！「Hello World」 → 「こんにちは、〇〇さん」](https://zenn.dev/punizo/articles/04_learning_to_views#03.-%E3%81%A4%E3%81%AA%E3%81%92%EF%BC%81%E3%80%8Chello-world%E3%80%8D-%E2%86%92-%E3%80%8C%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%E3%80%81%E3%80%87%E3%80%87%E3%81%95%E3%82%93%E3%80%8D)」で、
+**{% url 'ルート名' %} 構文は、HTMLテンプレートファイルで使える Django の独自機能** と言っていたこと、覚えている？
+
+でも今回、ちょっと違う様相の使い方をしているの。
+気がついた？
+そうなの。
+```django
+{% for piece in pieces %}
+  ...
+{% endfor %}
+```
+コレ、{% url 'xxx' %} と似ているけど、初見の形だよね。
+
+実はね、 Django で使えるテンプレートタグには、大きく分けて2種類あるの。
+- **便利系タグ**：**{% url 'xxx' %}**, **{% csrf_token %}** など  
+  → Django の機能を呼び出すための専用タグ。
+
+- **制御系タグ**：**{% for %}**, **{% if %}** など  
+  → Python の書き方に似てるけど、Django テンプレートの中でだけ使える仕組み。
+  本物の Python ではないけど、似た感覚で書けるようにしてくれている。
+
+今回出てきた、これ。
+```django
+{% for piece in pieces %} 
+  ...
+{% endfor %}
+```
+これは「制御タグ」のひとつで、一覧データを順番に取り出して表示するためのものなのよ。
+そこに、{% empty %} も書いておけば、データが0件のとき専用メッセージを出すこともできる！
+:::
+
+:::message
+
+**今回の新出ポイント**
+
+- **🟦 URLの <int:pk> について**
+pk は **primary key**の略（=自動採番のID）。
+urls.py で 「path('detail/<int:pk>/', …………)」 と書くと、URL の数字の <int:pk>（＝データ識別の一意の id ）がビューに渡る。
+それを、テンプレート側では 
+```html
+<a href="{% url 'piece_detail' piece.pk %}">詳細</a>
+```
+みたいな形で、受け取る。
+
+データの詳細確認、編集、削除というのは、一つのデータに対してだけ行う作業だよね。
+だから、一意の識別子を渡してあげないと、Django 側は「え？どのデータの詳細表示させるんだよ？？？」って混乱してしまうのよ。
+
+
+- **🟦 リストにサムネ表示**
+{{ piece.image.url }} で画像のURLにアクセスできる（MEDIA_URL 配信が効いてる）。  
+サムネは height/width 固定 ＋ object-fit: cover で四角にトリミングしたよ。
+これは、あとで画像データを登録してから、リスト表示で改めて確認してみようポイント！
+:::
+
 
 ## 08. 愛しの DetailView
-## 09. 間違い発見！！修正View はあるのか？
+## 09. 間違い発見！！修正は UpdateView にお任せ
 ## 10. 悲しみのデリート作業。（DeleteView）
+
 ## 11. 本当の現場の delete 作業
-## 12. View フィナーレは TemplateView で華麗に締める！
+## 12. ギャレリーフィナーレ
 ## 📕 突然現れた {% csrf_token %} さんは、どちら様？
+    def get_absolute_url(self):
+        return reverse("piece_detail", args=[self.pk])
 
