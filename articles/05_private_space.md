@@ -645,7 +645,7 @@ forms.NumberInput → 数値（<input type="number">）
 forms.DateInput → 日付（<input type="date">）
 forms.DateTimeInput → 日付＋時刻（<input type="datetime-local">）
 forms.EmailInput → メールアドレス（ブラウザバリデーション付き）
-forms.PasswordInput → パスワード入力（●●●で隠す）
+forms.PasswordInput → パスワード入力（●●●で隠れる）
 forms.CheckboxInput → チェックボックス
 forms.Select → プルダウン（choices付き）
 forms.ClearableFileInput → ファイルアップロード（画像投稿で大活躍）
