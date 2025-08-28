@@ -11,3 +11,4 @@ published: false # trueを指定する
 ## 03. LoginRequiredMixinって便利すぎない？
 ## 04. ログイン機能を作ったら。その後……
 ## 📕 Webアプリケーションできちゃった（現代社会へ降り立ったローカルDjango戦士）
+少しでいいから装飾したいstatic

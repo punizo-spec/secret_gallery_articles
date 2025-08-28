@@ -141,14 +141,14 @@ urlpatterns = [
 ]
 ```
 
-**3. secret_gallery プロジェクト内の urls.py を以下のように書き換える。**
+**3. secret_gallery プロジェクト内の urls.py を以下のように書きかえる。**
 （最初から存在しているファイルだよ）
 
-書き換えは２箇所。グレー背景のコードを組み込むよ。
+書きかえは２箇所。グレー背景のコードを組み込むよ。
 > - from django.urls import path`, include`
 > - `path('', include('sg_pieces.urls')),`
 
-書き換えというか、ちょっとの追加だね！
+書きかえというか、ちょっとの追加だね！
 
 ```python
 # secret_gallery/urls.py
@@ -421,7 +421,7 @@ Django では、**urls.py のルートそれぞれに名前（name）」をつ�
 **え？天国から地獄だね😇**
 
 この「名前」の使い方はとっても簡単。
-index.html のhref を"{% url 'greeting' %}"に書き換えるだけ！
+index.html のhref を"{% url 'greeting' %}"に書きかえるだけ！
 ```html
 <!-- sg_pieces/templates/index.html -->
 <html>
@@ -481,7 +481,7 @@ sg_user の作成で models.py は一度使ったけど・・・でも正直、�
 from django.db import models
 
 class GalleryPiece(models.Model):
-    name = models.CharField(max_length=100, null=True, blank=True, default="タイトル不明")  
+    name = models.CharField(max_length=100)  
     created_at = models.DateTimeField(null=True, blank=True)
     memo = models.TextField()
 
@@ -492,8 +492,8 @@ class GalleryPiece(models.Model):
 ```
 
 > **設定したフィールドごとに、どんな設定をしたのか確認してみよう。**
-> `name` : 文字列の入力。空欄, null OK。でも今回は、未入力の場合'タイトル不明'が登録される
-> `created_ad` : 日付の選択入力フィールド。空欄, null OK
+> `name` : 文字列の入力。未入力はエラーになる。
+> `created_ad` : 日時の選択入力フィールド。空欄, null OK
 > `memo` : 長文テキスト入力用フィールド
 
 なんとなく、モデル定義の書き方は分かるかな？
@@ -661,17 +661,17 @@ DATABASES = {
 実際の現場でデータベースを使用する場合なら、MySQL や PostgreSQL あたりを使うことが多い（もちろん要件定義次第ではあるけど、とてもメジャー）。
 
 :::message
-**データベース → ❌ RDBMS → ⭕️**
-正確には、「 SQLite、MySQL、PostgreSQL 」などの名称は、 **RDBMS** （`リレーショナルデータベース管理システム（Relational Database Management System）`）というデータベース管理・操作するためのソフトウェアの名称のこと。データベースとは、データを入れる枠組みのことでしかないからね。いまは説明の便宜上、「データベース」と呼んじゃっているだけ）<br>
+**データベース → ❌　RDBMS → ⭕️**
+正確には、「 SQLite、MySQL、PostgreSQL 」などの名称は、 **RDBMS** （`リレーショナルデータベース管理システム（Relational Database Management System）`）というデータベース管理・操作するためのソフトウェアの名称のこと。**データベースとは、データを入れる枠組みのことでしかない**からね。いまは説明の便宜上、「データベース」と呼んでいるだけ）<br>
 
 データベース → データを入れる箱そのもの
 RDBMS → その箱を操作するためのソフト（SQLite や MySQL など）
 Django は、settings.py の DATABASES の ENGINE の設定を見て「どのRDBMSを使うか」を選んでいるよ
 :::
 
-サーバーで Webアプリケーションを運用するときには、データベースの切り替えが必要になってきそうだね🌻
+🧐 サーバーで Webアプリケーションを運用するときには、データベースの切り替えが必要になってきそうだね🌻
 
-## 📕 Django の MTV という考え方
+## 📕 Django の『 MTV 』という考え方
 
 ここまでの作業で、Django の仕組みを一通り体験してもらったよ！！
 無事にここに辿り着いてくれた人はどのくらい居るんだろう・・・
@@ -683,7 +683,7 @@ Django は、settings.py の DATABASES の ENGINE の設定を見て「どのRDB
 ここで第３章の締めとして、MTVアーキテクチャという、Django の概念に触れてみようと思う。
 現時点で、管理画面表示までいっている人にとっては、何も難しいことはない。
 
-> M（Model）: models.py → DBの箱を設計
+> M（Model）: models.py → データベースのテーブル構造を設計
 > T（Template）: templates/*.html → 見た目を作成
 > V（View）: views.py → Model と Template をつなぐ橋渡し
 
@@ -695,7 +695,7 @@ Django は、settings.py の DATABASES の ENGINE の設定を見て「どのRDB
 
 この MTV が3つそろって、初めてDjangoが「Webアプリ」として動くという仕組み。
 
-覚えなくても良いんだけど、一応 Django さんの設計思想みたいだから、頭の片隅に置いておいてもらえると、いつか役に立つかも！！（……立つか？）
+覚えなくても良いんだけど、一応 Django さんの設計思想みたいだから、頭の片隅に置いておいてもらえると、いつか役に立つかも〜〜（……立つか？）。
 
 :::message
  🫛 豆知識  
@@ -703,7 +703,8 @@ Django は、settings.py の DATABASES の ENGINE の設定を見て「どのRDB
 
 - **M ： Model** → Django では models.py  
 - **V ： View** → 見た目（Django では templates/*.html ）  
-- **C ： Controller** → 機能（Django では views.py ）  
+- **C ： Controller** → 機能全般（Django では views.py ＋ URLconf（urls.py））  
 
-Django もその考え方をベースにしているんだけど、Controller にあたる部分を「URLconf（ルーティング）」が担っているから「MTV」と呼んでいるのだよね。
+Django も MVC の考え方をベースにしているんだけど、MVC の場合の Controller を Django では **views.py と urls.py に分けて実装** しているのね。
+だから Django では「 MTV 」と呼ぶのよ。
 :::
