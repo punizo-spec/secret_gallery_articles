@@ -665,19 +665,189 @@ forms.ClearableFileInput → ファイルアップロード（画像投稿で大
 
 あのさ・・・絵とか写真とか、画像入れたいよね？
 というか、文字だけ投稿スタイルだと、エッセイや詩や小説の展示しかできない。
-きっと、絵を描くことが得意な人だっているよね！？（二次創作好きとしては、いつも楽しませていただいています！）
+きっと、絵を描くことが得意な人だっているよね！？（二次創作大好きマンなので、いつも楽しませていただいています！）
 
 ということで、画像登録もしていこう！
 
 
-実は、メディア投稿って、もしもインターネットに公開にするとなったら少し扱い方が
+実は、メディア投稿って、もしもインターネットに公開にするとなったら少し扱いがややこしくなってくる。
+今回はあくまで「最初に Django に触れる」想定だから、ローカル用セットアップを紹介するね！
+
+1. まずは画像処理のためのライブラリをインストール（必ず仮想環境で実行してね）
+```bash
+pip install Pillow
+```
+
+2. media/ ディレクトリの作成
+manage.py がある階層（ルートディレクトリと呼ぶよ）に「 media 」フォルダを作成する。
+
+3. sg_pieces/models.py を修正
+image フィールドの追加をして、メディア情報を保存できるように変更するよ
+```python
+from django.db import models
+from django.urls import reverse
+
+class GalleryPiece(models.Model):
+    name = models.CharField(max_length=100)  
+    created_at = models.DateTimeField(null=True, blank=True)
+    memo = models.TextField()
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "ギャラリー作品"
+        verbose_name_plural = "ギャラリー作品一覧"
+        db_table = "gallery_piece"
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("piece_detail", args=[self.pk])
+```
+:::message
+**新しい関数（def）が２つ。**
+これは一体・・・？と思うだろうけど、そんなに難しいことはないの。
+- **def __str__(self)**
+管理画面でデータの詳細ページにいくと、表示が「 GalleryPiece Object(1)」になっている箇所があるのよ。
+![](/images/c4_p5_8_adminobj.png =400x)
+それの表示を、分かりやすくするだけ。
+return self.name にしたから、models.py のフィールドの "name" の文字列が表示されるようになったね。
+![](/images/c4_p5_9_adminname.png =400x)
+あと、Pythonシェルで print したときの戻り値にも使われる・・・とかあるけど、いまは必要ないのでスルーしよう笑
+<br>
+
+- **def get_absolute_url(self)**
+これは、テンプレートからリンクするときに、便利に指定できる関数。
+DetailView や ListView のときに恩恵を受けるかな。
+管理画面でデータを作成/編集したときに、自動で、そのデータの詳細ページに飛ばしてくれたりする。
+Django プロジェクト上での挙動としては、CreateView や UpdateView のクラスで success_url の指定がされていない場合、個別データの URLリンクを取得して、そこのページに飛ばす、という挙動をする。
+自分で `redirect(piece.get_absolute_url())` と書いて同じ動きをさせることもできるんだけど・・・
+
+ここらへんはちょっとややこしくなちゃうから、いまは「そんな機能があるんだね〜」とだけ思っておいて！
+:::
+
+4. models.py を修正したのでマイグレート
+models.py で DB のテーブル構造を修正したので、マイグレートが必要になるね。
+```bash
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+
+マイグレートが完了したら、管理画面で image フィールドが追加されていることが確認できるよ。
+![](/images/c4_p5_10_adminedit.png)
 
 
-## 06. 登録された作品たちを並べてみるは ListView
-## 07. 愛しの DetailView
-## 08. 間違い発見！！修正View はあるのか？
-## 09. 悲しみのデリート作業。（DeleteView）
-## 10. 本当の現場の delete 作業
-## 11. View フィナーレは TemplateView で華麗に締める！
+5. 次は、settings.py の設定
+下記の、メディア設定を追記。
+末尾に追加で良いんだけど、おそらくデフォルトの settings.py の場合、末尾付近に
+「 STATIC_URL = 'static/' 」
+という設定があると思うから、それのすぐ下くらいに追記しておくと、分かりやすいかな。
+
+```python
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+```
+
+6. ローカルサーバーのときだけ、Django が MEDIA を配信するように、 urls.py に設定追記
+```python
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('create/', views.GalleryPieceCreateView.as_view(), name='piece_create'),
+]
+
+# /media/ をDjangoが直接配信（DEBUG時のみ）
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+```
+
+これで、http://127.0.0.1:8000/media/images/xxx.png みたいなURLでブラウザからアクセスできるようになる！
+
+:::message
+**if settings.DEBUG について**
+settings.py の中に、「 DEBUG = True 」という設定があると思う。
+これは、開発中のときだけ True にしておくもので、サーバーにデプロイするときには False にする。
+True にしておくと得られるメリットは、下記を行ってくれること。
+- エラーページの詳細
+- 静的ファイルやメディアの配信など
+本番環境でエラーページの詳細が表示されてしまうと、Webアプリケーションのディレクトリ構造などが知られてしまい、セキュリティ的にとても危険。
+静的ファイルやメディア配信は、本番環境では、通常「 Nginx や S3 」といったサービスが配信するんだけど、ローカル環境では Django が簡易に配信をしてくれる。
+
+そして、「ローカル環境では Django が簡易に配信をしてくれる」ためには、urls.py で static() 関数を使用する必要があるの。
+
+**if settings.DEBUG**の設定をしておけば、ローカル環境でのみエラー詳細が確認できるようになり、静的ファイルやメディア配信は Django がやってくれるようになるよ。
+:::
+
+
+
+7. CreateView に image フィールドを追加するので forms.py と create.html の修正
+```python
+# sg_pieces/forms.py
+from django import forms
+from .models import GalleryPiece
+
+class GalleryPieceForm(forms.ModelForm):
+    class Meta:
+        model = GalleryPiece
+        fields = "__all__"
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "名前"}),
+            "created_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-control"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "memo": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+        }
+
+    # datetime-local はタイムゾーン情報を持たない→入力形式を受け入れる
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["created_at"].input_formats = ["%Y-%m-%dT%H:%M"]
+
+    # ローカル検証の例（任意）
+    def clean_image(self):
+        img = self.cleaned_data.get("image")
+        if not img:
+            return img
+        if img.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("画像サイズは 5MB 以下にしてください。")
+        if not img.content_type.startswith("image/"):
+            raise forms.ValidationError("画像ファイルをアップロードしてください。")
+        return img
+```
+
+create.html は変更と追加箇所のみ記載
+```html
+<!-- sg_pieces/templates/sg_pieces/create.html -->
+  <!-- 重要：画像アップロードフォームは 必ず enctype="multipart/form-data" を付ける！付けないと動かない -->
+  <form method="post" class="mx-auto" style="max-width: 350px;" enctype="multipart/form-data">
+
+    …（略）…
+
+    <!-- 画像登録フィールドの追加 -->
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.image.id_for_label }}">画像</label>
+      {{ form.image }}
+      {{ form.image.errors }}
+    </div>
+```
+
+これで、画像を保存する土壌は出来上がり！
+
+
+
+## 07. 登録された作品たちを並べてみるは ListView
+
+## 06. 間違い発見！！修正View はあるのか？
+
+## 08. 愛しの DetailView
+## 09. 間違い発見！！修正View はあるのか？
+## 10. 悲しみのデリート作業。（DeleteView）
+## 11. 本当の現場の delete 作業
+## 12. View フィナーレは TemplateView で華麗に締める！
 ## 📕 突然現れた {% csrf_token %} さんは、どちら様？
 
