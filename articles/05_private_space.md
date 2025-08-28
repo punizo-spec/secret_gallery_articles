@@ -385,7 +385,8 @@ list_disp;ay で指定したフィールドが全部表示されて、一覧に�
 同じことは何回も書かない！それがオシャレなコーディング！（そうか？）
 
 
-まぁ、それは冗談にしても、何度も何度も同じことを書くと、コードを修正したいときにも、１箇所直したいだけなのに、何個も何個も似たようなファイルの修正しないといけなくなるよね。
+まぁ、それは冗談にしても、違うファイルに同じことを書いたままにしておくと、コードを修正するときが大変。
+１箇所の修正だけなのに、何個も何個も同じ箇所を修正して回らないといけなくなるから。
 だから、共通項でまとめられるファイルは、まとめてしまうのがスマートなのよ。
 
 というわけで、早速いきます！
@@ -412,9 +413,7 @@ sg_pieces/templates/sg_pieces 内に base.html というファイルを作成し
 ```html
 <!-- sg_pieces/templates/sg_pieces/index.html -->
 {% extends 'sg_pieces/base.html' %}
-
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
-
 {% block content %}
 
       <h1>秘密のプライベートギャラリー</h1>
@@ -442,7 +441,8 @@ sg_pieces/templates/sg_pieces 内に base.html というファイルを作成し
 {% endblock %}
 ```
 
-base.html を作り出したことで、コードがすごくスッキリした！
+どうかな。
+base.html を作り出したことで、コードがすごくスッキリしたよね！
 
 そして、**ここで抑えたいポイントは「 block 」と「 extends 」だよ。**
 
@@ -474,10 +474,12 @@ base.html の「親テンプレート」に対して、index.html や create.htm
 見やすい・直しやすい・増やしやすい の三拍子が揃った！
 まごうことなき、コードの進化！！！
 
-## 04. Bootstrap GO ON!!
-いま時点でも、フォームでデータ登録の流れに問題はないね！
 
-問題はないけれど・・・・・・なんだかフォームがデフォルトすぎて、無骨なイメージじゃない？
+## 04. Bootstrap GO ON!!
+いま時点でも、フォームを使用したデータ登録の流れに問題はないよ。
+ちゃんと登録できるよね？
+
+だけど・・・・・・なんだかフォームがデフォルトすぎて、無骨なイメージじゃない？
 それも味があるけど、ちょっと色をつけたりしてみたいのが、オンナゴコロってやつだ！
 
 
@@ -487,10 +489,17 @@ base.html の「親テンプレート」に対して、index.html や create.htm
 しかし、今回に限っては、None！！！
 
 ここでは、CSSフレームワークの Bootstrap を使用していこう！
+Bootstrap ってなに？って？
+
+それはだね、CSSを自分で書かなくても、クラスをつけるだけで“それっぽく”整う便利ツール！
 HTMLにクラスを付けるだけで、なんか見た目が整ってくれるやつ。これはシビィぜ！
 
-ということで、まずは親テンプレートの base.html ファイルを修正して、Bootstrap を使える状態にしていこう。
-<link href="">で Bootstrap 呼び込みと、ページにス余白をつけて見やすくしたいので、<main class="">を使用して少し整地。
+Bootstrap についての詳細設定は、公式がたくさん説明してくれているからね。
+[Bootstrap5.3 公式ドキュメント](https://getbootstrap.jp/docs/5.3/getting-started/introduction/)
+自分なりに設定をいじってみて、見た目を変えて遊んでみるのもいいと思うよ〜
+
+ということで、まずは親テンプレートの base.html ファイルを修正して、Bootstrap を使える状態にしていこ。
+<link href="">で Bootstrap 呼び込みをすることと、ページにス余白をつけて見やすくしたいので、<main class="">を使用して少し整地。
 
 ```html
 <!-- sg_pieces/templates/sg_pieces/base.html -->
@@ -512,7 +521,14 @@ HTMLにクラスを付けるだけで、なんか見た目が整ってくれる�
 </html>
 ```
 
-子テンプレートたちは、Bootstrap 対応のコードの変更する。
+子テンプレートたちは、Bootstrap 対応コードに修正していくね。
+でも、Bootstrapクラスを HTMLテンプレートファイルだけで完結させることはしない。
+せっかく Django を使っているし、さっき forms.py を作成したよね！？
+せっかくだからそのファイルを活用して最小燃料＆最大火力の組み込みをする！！
+
+今度は index.html ファイルの修正。
+ここは単純に Bootstrapクラスで見た目とリンクの見栄えだけを変える。
+
 
 ```html
 <!-- sg_pieces/templates/sg_pieces/index.html -->
@@ -521,15 +537,19 @@ HTMLにクラスを付けるだけで、なんか見た目が整ってくれる�
 {% block content %}
 
   <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
-  <div class="list-group d-grid gap-3 mx-auto text-center" style="max-width: 300px;">
+  <div style="max-width: 300px;">
     <a href="{% url 'piece_create' %}" class="list-group-item list-group-item-action">作品を登録する</a>
   </div>
 
 {% endblock %}
 ```
 
-g_pieces/forms.py を修正して、ModelForm に Bootstrap クラスを付けていくよ！
-すでに作成済の ModelForm である class GalleryPieceForm() の widgets を修正する。
+次に本命の sg_pieces/forms.py 修正。
+ここで、ModelForm に Bootstrap クラスを付けていくよ！
+理解できなくても大丈夫よ！表示なんて、変えたいときにググって修正すれば良いから！！
+
+ModelForm に直接 Bootstrap クラスを付けるメリットとしては、CreateView からさらに View を拡張したときにも、拡張先 View で同じ見た目や入力補助を維持できることかな。
+つまり、「何度も同じことを書かないオシャレなコーディング」ができる！
 
 ```python
 # sg_pieces/forms.py
@@ -555,7 +575,24 @@ class GalleryPieceForm(forms.ModelForm):
         self.fields["created_at"].input_formats = ["%Y-%m-%dT%H:%M"]
 ```
 
-create.html は、フォームエラーを表示させるように対応。最小コードで実装。
+:::message
+**class Meta 内での widgets について、ちょっとだけ補足するね**
+class Meta における widgets は、Django の ModelForm などや Form で「フィールドの見た目」を指定するところ。
+フォームにおける、「このデータはどんな風に入力させる？」とか「このデータの入力欄は、どんな UI（見た目）にする？」といった部分の設定ができるよ。
+
+- widgets = { … } の辞書キー（左側）は、モデル定義のフィールド名（models.py で定義した name, created_at, memo ）と一致させることが大事
+- 値（右側）は、そのフィールドに使いたい入力ウィジェットのクラス（forms.TextInput, forms.DateTimeInput, forms.Textarea, …）を指定する
+- attrs={ … } は、HTMLにそのまま出力される属性（class, placeholder, rows, type など）を追加できる。要は、HTMLそのものに直書きする属性を、ここでまとめて書いてしまえる便利なやつ。HTMLテンプレートファイルに直接 class="form-control" と書いても同じ見た目になるけど、forms.py にまとめると全部のフォームに効く。そして、後から修正も1か所で済むよ。
+
+Djangoのフォームは、指定しないと「フィールド型に応じたデフォルトの widget 」を自動で選んでくる。
+それで大丈夫なら、設定する必要はないけど、もしも「見た目をカスタマイズしたい！」とか「 placeholder で入力欄に薄文字テキストを入れて分かりやすくしたい！」と思ったら、この widgets を使って一発実装できる！
+
+この説明を読んで「自分は、HTML に直書きした方が分かりやすい・・・」って人がいたら、それでも良いよ！
+まずは自分のやりやすいやり方でやって良い。開発は、自由に発想すると、ポロッと閃いたりするから、あまりガチガチにならないで😄
+:::
+
+forms.py で フォームの振る舞いの設定は完了したので、create.html には、フォームエラーを表示させるように変更しておこう。
+あとは最低限の<label class="", for="">だけを設定だけね。
 
 ```html
 <!-- sg_pieces/templates/sg_pieces/create.html -->
@@ -594,10 +631,14 @@ create.html は、フォームエラーを表示させるように対応。最�
 ```
 
 一気に子テンプレートのコードが増えてしまったね笑
+もしも Webデザイナーさんであれば「あ、はいはい。こんなもんね」で理解できるんだろうね。
+
+ぷに蔵なんかはバックエンド開発は好きだけど、フロントエンドがありえんほどに苦手なので、正直これ以上の見た目をいじるとしたら、無限に時間がかかる！
+多分、views.py 系のややこしコードを３本以上書いてる時間合わせても、HTMLテンプレート１個の設定も終わらないんじゃないかな笑
+得手不得手ってあるからね〜〜〜😐
 
 
-
-:::details よく使う便利ウィジェット
+:::details おまけに、よく使う便利ウィジェットたち（ぷに蔵のテキストメモを公開しとくｗ）
 forms.TextInput → 1行テキスト
 forms.Textarea → 複数行テキスト
 forms.NumberInput → 数値（<input type="number">）
@@ -610,10 +651,31 @@ forms.Select → プルダウン（choices付き）
 forms.ClearableFileInput → ファイルアップロード（画像投稿で大活躍）
 :::
 
-## 05. 登録された作品たちを並べてみるは ListView
-## 06. 愛しの DetailView
-## 07. 間違い発見！！修正View はあるのか？
-## 08. 心血注いだ創作物は愛しの我が子。いつでもキミを見ているよ（from media）
+せっかくなので、記念にフォームで登録笑
+![](/images/c4_p4_7_bootstrap.png =580x)
+
+
+## 05. 心血注いだ創作物は愛しの我が子。いつでもキミを見ているよ（from media）
+テンプレートファイルの成長を感じる・・・。
+
+
+しかし、作品展示というからには、何か足りない。
+
+気づいてた？
+
+あのさ・・・絵とか写真とか、画像入れたいよね？
+というか、文字だけ投稿スタイルだと、エッセイや詩や小説の展示しかできない。
+きっと、絵を描くことが得意な人だっているよね！？（二次創作好きとしては、いつも楽しませていただいています！）
+
+ということで、画像登録もしていこう！
+
+
+実は、メディア投稿って、もしもインターネットに公開にするとなったら少し扱い方が
+
+
+## 06. 登録された作品たちを並べてみるは ListView
+## 07. 愛しの DetailView
+## 08. 間違い発見！！修正View はあるのか？
 ## 09. 悲しみのデリート作業。（DeleteView）
 ## 10. 本当の現場の delete 作業
 ## 11. View フィナーレは TemplateView で華麗に締める！
