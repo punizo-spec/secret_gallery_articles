@@ -3,8 +3,8 @@ title: "第４章　CRUDアプリはすぐそこに"
 emoji: "♍️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
-published: false # trueを指定する
-# published_at: 2050-08-20 00:00 # 未来の日時を指定する
+published: true
+published_at: 2050-08-20 00:00 # 未来の日時を指定する
 ---
 
 ## 01. 概念的に View を考えてみる - Don't Think! FEEL!! -
@@ -604,8 +604,8 @@ forms.py で フォームの振る舞いの設定は完了したので、create.
 
   <form method="post" class="mx-auto" style="max-width: 450px;">
     {% csrf_token %}
-
     {{ form.non_field_errors }}
+
     <div class="mb-3">
       <label class="form-label" for="{{ form.name.id_for_label }}">名前</label>
       {{ form.name }}
@@ -624,7 +624,10 @@ forms.py で フォームの振る舞いの設定は完了したので、create.
       {{ form.memo.errors }}
     </div>
 
-    <button type="submit" class="btn btn-outline-primary">登録する</button>
+    <div class="text-center">
+      <button type="submit" class="btn btn-outline-primary">登録する</button>
+    </div>
+
   </form>
 
 {% endblock %}
@@ -1227,6 +1230,7 @@ views.py で form_class = GalleryPieceForm を指定すれば、そのまま Gal
 ということは・・・これ、create.html と、中身が全く一緒なのよ。
 
 なので、ぷに蔵は面倒くさがりなので、create.html をコピペして、「登録」 → 「編集」に文字列変更程度だけで終わらせました！（白杖）
+一応、登録画像のプレビューも入れてあります。
 ```html
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Update{% endblock %}
@@ -1236,8 +1240,8 @@ views.py で form_class = GalleryPieceForm を指定すれば、そのまま Gal
 
   <form method="post" class="mx-auto" style="max-width: 450px;" enctype="multipart/form-data">
     {% csrf_token %}
-
     {{ form.non_field_errors }}
+
     <div class="mb-3">
       <label class="form-label" for="{{ form.name.id_for_label }}">名前</label>
       {{ form.name }}
@@ -1257,12 +1261,23 @@ views.py で form_class = GalleryPieceForm を指定すれば、そのまま Gal
     </div>
 
     <div class="mb-3">
+      <!-- 画像のプレビューを表示する -->
+      {% if view.object and view.object.image %}
+        <div class="text-center mb-3">
+          <img src="{{ view.object.image.url }}" alt="{{ view.object.name }}"
+              style="width:120px; height:120px; object-fit:cover; border-radius:8px;">
+          <div class="text-muted small mt-1">現在の画像</div>
+        </div>
+      {% endif %}      
       <label class="form-label" for="{{ form.image.id_for_label }}">画像</label>
       {{ form.image }}
       {{ form.image.errors }}
     </div>
     
-    <button type="submit" class="btn btn-outline-primary">保存する</button>
+    <div class="text-center">
+      <button type="submit" class="btn btn-outline-primary">保存する</button>
+    </div>
+
   </form>
 
 {% endblock %}
@@ -1301,13 +1316,269 @@ def get_absolute_url(self):
 
 次の作業にいく前に、全部に画像入れてみようかな🧐
 
+## 📕 Create / Update を同じテンプレで使い回す小技
+ここまで作ってみて、あまりに create.html と update.html の一致箇所が多かったことにびっくりだ。
+
+これって、create.html と update.html で使う共通テンプレを作っちゃった方が、メンテナンス性上がる気がしない？
+後から楽になる手間は掛ける派の人は、ぜひ共通テンプレ化に挑戦してみて！
+面倒な人は、飛ばしても大丈夫だよ！見た目とか何も変わらないから。
+
+２ステップでいこう！
+♦️ 1. piece_form.html の作成
+♦️ 2. views.py の書きかえ
+たったこれだけだ！！！
+
+
+1. piece_form.html ファイルを作成して、そこに下記コードを入力
+```html
+<!-- sg_pieces/templates/sg_pieces/piece_form.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}{{ view.object|default_if_none:"Create" }}{% endblock %}
+{% block content %}
+  <h4 class="text-center mb-4 mt-4">
+    {{ view.object|yesno:"作品を編集する,作品を登録する" }}
+  </h4>
+
+  <form method="post" class="mx-auto" style="max-width: 450px;" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.name.id_for_label }}">名前</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.created_at.id_for_label }}">登録日</label>
+      {{ form.created_at }}
+      {{ form.created_at.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.memo.id_for_label }}">メモ</label>
+      {{ form.memo }}
+      {{ form.memo.errors }}
+    </div>
+
+    <div class="mb-3">
+      {% if view.object and view.object.image %}
+        <div class="text-center mb-3">
+          <img src="{{ view.object.image.url }}" alt="{{ view.object.name }}"
+              style="width:120px; height:120px; object-fit:cover; border-radius:8px;">
+          <div class="text-muted small mt-1">現在の画像</div>
+        </div>
+      {% endif %}
+
+      <label class="form-label" for="{{ form.image.id_for_label }}">画像</label>
+      {{ form.image }}
+      {{ form.image.errors }}
+    </div>
+    
+    <button type="submit" class="btn btn-outline-primary">
+      {{ view.object|yesno:"保存する,登録する" }}
+    </button>
+  </form>
+{% endblock %}
+```
+
+> **{{ view.object|yesno:"Update,Create" }} の使い方**
+> view.object が存在する（yes）なら "Update"、存在しない（no）なら "Create" が表示される。
+> これで、create / update それぞれで、下記の設定がされていることと同じ挙動になる。
+> - {% block title %}秘密のプライベートギャラリー Create{% endblock %}
+> - {% block title %}秘密のプライベートギャラリー Update{% endblock %}
+>
+> {{ view.object|yesno:"保存する,登録する" }} でも、同じ考え方ができるね。
+> view.object は存在する？しない？
+> 　yes → 保存する（view.object がある）
+> 　no → 登録する（view.object がない）
+> もしも「view.object ってなにーー😩」ってなりそうだったら、「DB に登録されているデータ」って考えると分かりやすいかも。
+> DB に登録されたデータがある（view.object → yes） or DB に登録されたデータはない（view.object → no）の違いだよ！
+
+:::message
+**view.object**は、ビューからテンプレートに渡ってくる１個のデータのこと。
+CreateView と UpdateView は、どっちも 1件のデータを扱うでしょ？
+Django が「いま対象にしているデータだよ」って渡ってくるのが object。
+ビューから渡されるから view.object で取得できる。このとき、ビューからはモデル定義の __str__ に指定したものが渡されるよ。
+今回のモデルなら
+```python
+def __str__(self):
+    return self.name
+```
+となっているから、name フィールドの文字列が渡ってくる。<br>
+{% block title %}秘密のプライベートギャラリー めんだこ{% endblock %}
+みたいに表示設定したいときには、
+- **{% block title %}秘密のプライベートギャラリー {{ view.object|default_if_none:"Create" }}{% endblock %}**
+
+……を使うと、view.object にデータがない（＝新規登録）ときは、下記のように表示される。
+新規登録：秘密のプライベートギャラリー Create
+編集画面：秘密のプライベートギャラリー めんだこ
+:::
+
+
+2. views.py の書きかえ
+```python
+# sg_pieces/views.py
+# GalleryPieceCreateView と GalleryPieceUpdateView のみ変更
+class GalleryPieceCreateView(CreateView):
+    model = GalleryPiece
+    template_name = "sg_pieces/piece_form.html"
+    form_class = GalleryPieceForm
+
+class GalleryPieceUpdateView(UpdateView):
+    model = GalleryPiece
+    template_name = "sg_pieces/piece_form.html"
+    form_class = GalleryPieceForm
+```
+
+以上で完了！！
+とても簡単に共通テンプレ化できたね。
+
 
 ## 09. 悲しみのデリート作業。（DeleteView）
+ビュー、最後のひとつ。
+削除まで辿り着いたね！
+
+まずは、下記の２ステップでいくよ！
+♦️ 1. delete.html の作成
+♦️ 2. views.py の書きかえ
+
+1. delete.html ファイルを作成して、下記のコードを入力
+```html
+
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー Delete{% endblock %}
+{% block content %}
+
+  <h4 class="text-center mb-4 mt-4">作品の削除確認</h4>
+
+  <form method="post" class="mx-auto" style="max-width: 450px;">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+  <div class="text-center">『{{ object.id }}.{{ object.name }}』を本当に削除しますか？</div>
+  
+    <div class="text-center">
+      <button type="submit" class="mt-5 btn btn-outline-danger btn-sm">削除する</button>
+    </div>
+
+  </form>
+
+{% endblock %}
+```
+
+2. views.py の書きかえ
+```python
+# sg_pieces/views.py
+class GalleryPieceDeleteView(DeleteView):
+    model = GalleryPiece
+    template_name = "sg_pieces/delete.html"
+    success_url = reverse_lazy("piece_list")
+```
+
+これで完了！！
+データを登録して、削除をしてみて！
+![](/images/c4_p9_18_list.png =680x)
+
+無事に削除できたかな？
+
+でもなんか、削除されたけど、ちょっと味気なかったな〜。
+もう少し「削除完了した！」感を出したいから、完了メッセージを出してみよう！
+
+♦️ views.py をもう少し修正（モジュールも、１つ増えるよ）
+```python
+# sg_pieces/views.py
+from django.contrib import messages
+
+class GalleryPieceDeleteView(DeleteView):
+    model = GalleryPiece
+    template_name = "sg_pieces/delete.html"
+    success_url = reverse_lazy("piece_list")
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()  # 削除対象を取得
+        messages.success(request, f"{obj.id}. {obj.name}を削除しました。")
+        return super().post(request, *args, **kwargs)
+```
+
+♦️ list.html を修正
+追加になるところが、**{% if messages %} … {% endif %} の部分ね。
+```html
+<!-- sg_pieces/templates/sg_pieces/list.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー List{% endblock %}
+{% block content %}
+
+  <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+    <ul class="list-group list-group-flush mx-auto mt-4" style="max-width: 400px;">
+      {% for piece in pieces %}
+        <li class="list-group-item">
+          {{ piece.id }} {{ piece.name }}
+        <span class="float-end">
+          <!-- 画像のサムネイル表示 -->
+          {% if piece.image %}
+          <img src="{{ piece.image.url }}" alt="{{ piece.name }}" style="height:40px; width:40px; object-fit:cover; border-radius:6px;">
+          {% endif %}
+          <!-- リンク表示 -->
+          <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
+          <!-- <a href="{{ piece.get_absolute_url }}" class="btn btn-outline-info btn-sm">詳細</a> -->
+          <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-secondary btn-sm">編集</a>
+          <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
+        </span>
+        </li>
+
+      {% empty %}
+        <li class="list-group-item">まだ作品が登録されていません😢</li>
+      {% endfor %}
+
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <a href="{% url 'index' %}" class="mt-4 mx-auto btn btn-outline-primary" style="width:130px;">トップに戻る</a>
+    </ul>
+
+    <!-- Bootstrapの閉じるボタンを効かせる用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+```
+
+削除メッセージが出るようになった！
+ついでに、Bootstrap で閉じるボタンも入れてみたよ。
+![](/images/c4_p9_19_msglist.png =680x)
+
+{% if messages %} ... {% endif %} エリアで削除メッセージを表示させていることは分かるよね？
+これがどこから渡ってきたのかだけ確認しておこう！
+
+views.py の下記のコード部分。
+```python
+# sg_pieces/views.py の一部
+def post(self, request, *args, **kwargs):
+    obj = self.get_object()  # 削除対象を取得
+    messages.success(request, f"{obj.id}. {obj.name}を削除しました。")
+    return super().post(request, *args, **kwargs)
+```
+
+:::message
+**どうやって削除メッセージを表示させたの**？って気になるよね。<br>
+削除ボタンを押すと、DeleteView が対象のオブジェクト（データ）を取り出して削除を実行するの。
+そのとき「削除しました！」って通知を出したいから、def post() という関数をオーバーライドして、メッセージを積んでる。<br>
+「なんで post が関係あるの？」って思うかもしれないけど、いままで作ってきたビューのフォーム送信は、実は全部 POST を使っていた。
+フォームに {% csrf_token %} を仕込んで送信したら、ビューはまず POSTメソッドから処理を始める。（それぞれのクラスには処理の順番が明確にあるのよ）<br>
+だから削除処理の直前で post() を上書き（オーバーライド）すれば、「削除処理 ＋ messages 送信」を自分で仕込める。
+そして、テンプレート側（list.html）では {% if messages %} … {% endif %} で受け取って、表示するためのコードを入れ込んであげる。<br>
+これで、削除後に「完了しました」というメッセージ通知表示ができあがるよ🌿
+:::
 
 ## 10. 本当の現場の delete 作業
 ## 11. ギャレリーフィナーレ
 
-## 📕 Create/Update を同じテンプレで使い回す
 ## 📕 model と form と widgets と。
 ぷに蔵が最初「え？？？」と思って、どうにもこうにも「なに言ってんの？」と思った思い出ポイントが、今回の章に出てきていたので、過去の与太話を紹介しようと思う。
 
