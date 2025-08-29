@@ -16,7 +16,7 @@ pip については、前章で学んだね！パッケージをインストー�
 それを使って、仮想環境に Django パッケージをインストールしたよ。
 無事にインストールできた？
 
-::::details エラーが出た人はこちら。
+::::details エラーが出た人はこちら
 エラーの種類的には
 - Defaulting to user installation because normal site-packages is not writeable
 - ERROR: Could not find a version that satisfies the requirement django (from versions: none)
@@ -255,7 +255,7 @@ class Game(models.Model):
 
 :::message
 ぷに蔵の肌感覚的に、Django をはじめて触った最初のタイミングで、 models.py に AbstractUser を使ったモデル定義を理解・・・は、難しすぎる！！！
-だから、今時点で何か覚える必要ってまったくなくて、今回はコピペもしくは写経（コードをただ書き写すこと）で良いと思うの。<br>
+だから、いま時点で何か覚える必要はまったくなくて、今回はコピペもしくは写経（コードをただ書き写すこと）で良いと思うの。<br>
 第２章の最後にちょっとだけ読み物として、この「 AbstractUser 」について書いたんだけど、改めて考えてみても、結構難しいなと感じたのよ。<br>
 なので、今回ここで理解してもらいたいことは１つだけ！
 > AbstractUser クラスというものを継承して、管理画面にログインできるユーザーを作成する機能を作った
@@ -278,7 +278,7 @@ class CustomUser(AbstractUser):
         return self.username
 ```
 
-:::details AbstractUserってなに？（書いてみたけど、読まなくても良いかも）
+::::details AbstractUserってなに？（書いてみたけど、読まなくても良いかも）
 AbstractUser は、Djangoが用意している「ログインに必要な機能（パスワード、権限、最終ログインなど）」が最初から入った“ユーザーの雛形”のこと。
 継承するだけで、管理画面にログインできる人を自分のプロジェクト用に持てるの。
 標準装備のフィールドがいくつかあるんだけど、その標準に追加したいフィールドがあれば、自分で追加できることが強み。
@@ -288,20 +288,20 @@ USERNAME_FIELD = "username"　← こう書くと、今回作成したユーザ�
 AbstractUser は username + password でのログインがデフォルトだから書かなくても良いんだけど、後から見たときに明示的に分かりやすいから書いておいただけ（AbstractUser は、他の任意のフィールドを使用したログインに変更することも可能。email + password とかね）。<br>
 REQUIRED_FIELDS = []　← こう書くと、必須項目以外は、ユーザー作成のときに入力が必要ではありません、という意味。<br>
 この管理ユーザーって、いまはとってもイメージしづらいから、第２章が全部終わってから、気になったらもう一度読んでみる軽さで進めてね🌻
-:::
+::::
 
 ## 05. settings.pyは設定ファイル（文字どおりすぎる…）
 
 「sg_user」アプリの models.py で、管理者ユーザーの設定が終わったね。
 今度は、作成した管理者ユーザーの情報を、Django に「これからは管理者、このモデルでいきますね」って教えてあげる設定をするよ〜。
 
-:::details settings.py に AUTH_USER_MODEL を設定する意味
+::::details settings.py に AUTH_USER_MODEL を設定する意味
 Django にはデフォルトの Userモデル（django.contrib.auth.models.User）というものが最初から存在するんだけど、今回自分で作った CustomUserモデルを使用するためには、この「教えてあげる設定」が必要。<br>
 これを書かないと、Django 的には「え？管理者ユーザーっていつも（標準）の Userモデル使うに決まってるでしょ」って思ってしまうから、<br>
 もしもこの設定を忘れて、Django さんが管理者モデルを標準 User として記憶してもらったら、とっても大変！！<br>
 なぜなら、この管理者ユーザーは後から変えることができない！！！（……わけじゃないけど、変えるならプロジェクト作り直した方が手っ取り早いくらい面倒くさい！）
 だから、ここで忘れずに設定しよ。
-:::
+::::
 
 **使うファイルは settings.py**
 このファイルは、プロジェクト全体にかかる挙動を設定するよ。
@@ -460,7 +460,7 @@ python3 manage.py createsuperuser
 全部共通して「 python3 manage.py 」から始まっている。
 なぜなら manage.py は Django 操作の受付窓口のためです！！
 
-今まで実行してくれたコマンドは、こんな意味だったんだ。
+いままで実行してきたコマンドは、こんな意味だったんだ。
 > python3 : python3 で実行する指令を出しますね
 > manage.py : manage.pyさん（窓口業務）
 > startapp sg_user : sg_user というアプリを開始したいな（→ 作成してくれる）
@@ -569,7 +569,7 @@ Django の管理画面は、モデル名をそのまま表示するわけじゃ�
 だから、CustomUserモデルが正しく定義されても、ここの表示は Users になっているのよ。
 これを修正して「ユーザー」とかにもできる。
 
-:::details Users 表示を「ユーザー」に修正したいひと向け
+::::details Users 表示を「ユーザー」に修正したいひと向け
 sg_user/models.py の CustomUser の下部にコード追加。これだけ。
 
 ```python
@@ -591,4 +591,4 @@ class CustomUser(AbstractUser):
 ファイルを保存したら、管理画面をリロード。（これは DB のテーブル構造に影響がないから、makemigrations / migrate は不要）
 変更された？<br>
 でも、表示が変わるだけなので、これをやらなくても「秘密のプライベートギャラリー」上では何の問題もない笑
-:::
+::::

@@ -428,7 +428,7 @@ sg_pieces/templates/sg_pieces 内に base.html というファイルを作成し
 ```html
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 {% extends 'sg_pieces/base.html' %}
-{% block title %}秘密のプライベートギャラリー 登録{% endblock %}
+{% block title %}秘密のプライベートギャラリー Create{% endblock %}
 {% block content %}
 
     <h1>秘密のプライベートギャラリー</h1>
@@ -597,12 +597,12 @@ forms.py で フォームの振る舞いの設定は完了したので、create.
 ```html
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 {% extends 'sg_pieces/base.html' %}
-{% block title %}秘密のプライベートギャラリー 登録{% endblock %}
+{% block title %}秘密のプライベートギャラリー Create{% endblock %}
 {% block content %}
 
   <h4 class="text-center mb-4 mt-4">作品を登録する</h4>
 
-  <form method="post" class="mx-auto" style="max-width: 350px;">
+  <form method="post" class="mx-auto" style="max-width: 450px;">
     {% csrf_token %}
 
     {{ form.non_field_errors }}
@@ -633,7 +633,7 @@ forms.py で フォームの振る舞いの設定は完了したので、create.
 一気に子テンプレートのコードが増えてしまったね笑
 もしも Webデザイナーさんであれば「あ、はいはい。こんなもんね」で理解できるんだろうね。
 
-ぷに蔵なんかはバックエンド開発は好きだけど、フロントエンドがありえんほどに苦手なので、正直これ以上の見た目をいじるとしたら、無限に時間がかかる！
+ぷに蔵は、バックエンド開発は好きだけど、フロントエンドがありえんほどに苦手なので、正直これ以上の見た目をいじるとしたら、無限に時間がかかる！
 多分、views.py 系のややこしコードを３本以上書いてる時間合わせても、HTMLテンプレート１個の設定も終わらないんじゃないかな笑
 得手不得手ってあるからね〜〜〜😐
 
@@ -651,7 +651,7 @@ forms.Select → プルダウン（choices付き）
 forms.ClearableFileInput → ファイルアップロード（画像投稿で大活躍）
 :::
 
-せっかくなので、記念にフォームで登録笑
+せっかくなので、記念にフォームでデータ登録してみて！
 ![](/images/c4_p4_7_bootstrap.png =580x)
 
 
@@ -801,6 +801,7 @@ class GalleryPieceForm(forms.ModelForm):
                 format="%Y-%m-%dT%H:%M",
             ),
             "memo": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
     # datetime-local はタイムゾーン情報を持たない→入力形式を受け入れる
@@ -836,7 +837,7 @@ create.html は、変更と追加箇所のみ記載
 ```html
 <!-- sg_pieces/templates/sg_pieces/create.html -->
   <!-- 重要：画像アップロードフォームは 必ず enctype="multipart/form-data" を付ける！付けないと動かない -->
-  <form method="post" class="mx-auto" style="max-width: 350px;" enctype="multipart/form-data">
+  <form method="post" class="mx-auto" style="max-width: 450px;" enctype="multipart/form-data">
 
     …（略）…
 
@@ -850,7 +851,7 @@ create.html は、変更と追加箇所のみ記載
 
 これで、画像を保存する土壌は出来上がり！
 
-## 07. 登録作品たちを並べてみるは ListView
+## 06. 登録作品たちを並べてみるは ListView
 
 ```html
 <!-- sg_pieces/templates/sg_pieces/index.html -->
@@ -998,13 +999,14 @@ ListView の最小構成は model と template_name の指定だけで良いん�
           {% endif %}
           <!-- リンク表示 -->
           <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
-          <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-info btn-sm">編集</a>
+          <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-secondary btn-sm">編集</a>
           <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
         </span>
         </li>
       {% empty %}
         <li class="list-group-item">まだ作品が登録されていません😢</li>
       {% endfor %}
+      <a href="{% url 'index' %}" class="mt-4 mx-auto btn btn-outline-primary" style="width:130px;">トップに戻る</a>
     </ul>
 
 {% endblock %}
@@ -1128,13 +1130,283 @@ urls.py で 「path('detail/<int:pk>/', …………)」 と書くと、URL の�
 :::
 
 
-## 08. 愛しの DetailView
-## 09. 間違い発見！！修正は UpdateView にお任せ
-## 10. 悲しみのデリート作業。（DeleteView）
+## 07. 愛しの DetailView
+ListView、勢いでイケるかと思ったけど、わりと負荷高めな内容だったね笑
+書き終えたぷに蔵、けっこうぐったりしている😣
 
-## 11. 本当の現場の delete 作業
-## 12. ギャレリーフィナーレ
-## 📕 突然現れた {% csrf_token %} さんは、どちら様？
-    def get_absolute_url(self):
+だから少し、まったりモードでいきたい。
+やること３つ！
+♦️ detail.html ファイルを作って、コードを設置
+♦️ views.py に DetailView 継承のクラスを準備
+♦️ リスト一覧から「詳細」ページに飛べたら完了！
+
+では、いこう。
+1. まずは、detail.html ファイルの作成（ index.html や list.html ファイルをコピペの後、修正でいいぞ！）
+中身は、下記のコードを記入。・・・か、自分の好きなように CSS は変えていいからね！
+```html
+<!-- sg_pieces/templates/sg_pieces/detail.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー Detail{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+
+      <h1 class="text-center mb-4 mt-4">ギャラリー 個別展示</h1>
+
+      <div class="card shadow-sm">
+        <div class="card-body text-center"><!-- ← 基本は中央寄せ -->
+          
+          <!-- 画像（中央） -->
+          {% if object.image %}
+            <img src="{{ object.image.url }}" alt="{{ object.name }}"
+                 class="d-block mx-auto rounded mb-3"
+                 style="width:280px; height:280px; object-fit:cover;">
+          {% else %}
+            <div class="d-flex align-items-center justify-content-center bg-light rounded mb-3"
+                 style="width:280px; height:280px; margin:0 auto;">
+              <span class="text-muted">画像が登録されていません</span>
+            </div>
+          {% endif %}
+
+          <!-- タイトル（中央） -->
+          <h4 class="mb-3">{{ object.name }}</h4>
+
+          <!-- プロフィール（ここだけ左寄せ） -->
+          <div class="text-start mx-auto" style="max-width: 90%;">
+            <p class="mb-1"><strong>投稿日：</strong>{{ object.created_at|date:"Y-m-d H:i" }}</p>
+            <p class="mb-0"><strong>メモ：</strong></p>
+            <div class="border rounded p-2 mt-1" style="white-space:pre-wrap;">{{ object.memo }}</div>
+          </div>
+
+          <!-- ボタン群（中央） -->
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <a href="{% url 'piece_list' %}" class="btn btn-outline-primary">リストに戻る</a>
+            <a href="{% url 'piece_update' object.pk %}" class="btn btn-outline-secondary">編集</a>
+            <a href="{% url 'piece_delete' object.pk %}" class="btn btn-outline-danger">削除</a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+```
+個別ページからも編集、削除ができるようにしておくと便利かもしれないよね？
+
+
+2. views.py を修正する（該当箇所のみ記載）
+```python
+# sg_pieces/views.py
+class GalleryPieceDetailView(DetailView):
+    model = GalleryPiece
+    template_name = "sg_pieces/detail.html"
+```
+
+これで「詳細」ページへGO ！
+
+![](/images/c4_p7_14_detail.png =580x)
+
+おおーーーー！いい感じだね！！！
+よし！次にいこう！
+
+## 08. 修正は UpdateView にお任せ
+UpdateView 
+♦️ update.html ファイルを作って、コードを設置
+♦️ views.py に UpdateView 継承のクラスを準備（form_c）
+♦️ リスト一覧から「編集」ページに飛べたら完了！
+
+
+手順は Detail と一緒だ！
+1. update.html ファイルを作って、コードを設置
+これさ、気づいた人いるかな？
+views.py で form_class = GalleryPieceForm を指定すれば、そのまま GalleryPiece のフォームが使えるよね？
+ということは・・・これ、create.html と、中身が全く一緒なのよ。
+
+なので、ぷに蔵は面倒くさがりなので、create.html をコピペして、「登録」 → 「編集」に文字列変更程度だけで終わらせました！（白杖）
+```html
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー Update{% endblock %}
+{% block content %}
+
+  <h4 class="text-center mb-4 mt-4">作品を編集する</h4>
+
+  <form method="post" class="mx-auto" style="max-width: 450px;" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.name.id_for_label }}">名前</label>
+      {{ form.name }}
+      {{ form.name.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.created_at.id_for_label }}">登録日</label>
+      {{ form.created_at }}
+      {{ form.created_at.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.memo.id_for_label }}">メモ</label>
+      {{ form.memo }}
+      {{ form.memo.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.image.id_for_label }}">画像</label>
+      {{ form.image }}
+      {{ form.image.errors }}
+    </div>
+    
+    <button type="submit" class="btn btn-outline-primary">保存する</button>
+  </form>
+
+{% endblock %}
+```
+
+2. views.py を修正する（該当箇所のみ記載）
+```python
+# sg_pieces/views.py
+class GalleryPieceUpdateView(UpdateView):
+    model = GalleryPiece
+    template_name = "sg_pieces/update.html"
+    form_class = GalleryPieceForm
+```
+今回は、success_url 付けない仕様でやってみようかな。
+
+
+models.py で、下記の設定したじゃない？
+```python
+def get_absolute_url(self):
         return reverse("piece_detail", args=[self.pk])
+```
+ということは、編集が完了すれば、{% url 'piece_detail' object.pk %} に遷移してくれるはず！
+それも一緒に確かめてみよう！
+
+♦️ リスト一覧から「詳細」ページに飛べたら完了！
+作品登録画面とシンクロ率200%笑
+![](/images/c4_p8_15_update.png)
+
+作品編集で、個別ページに飛んだよ！
+つまり、`def get_absolute_url(self)` がちゃんと機能しているということだ！
+![](/images/c4_p8_16_detailjump.png =550x)
+
+お！サムネ画像も表示されたね！！
+![](/images/c4_p8_17_list.png)
+
+
+次の作業にいく前に、全部に画像入れてみようかな🧐
+
+
+## 09. 悲しみのデリート作業。（DeleteView）
+
+## 10. 本当の現場の delete 作業
+## 11. ギャレリーフィナーレ
+
+## 📕 Create/Update を同じテンプレで使い回す
+## 📕 model と form と widgets と。
+ぷに蔵が最初「え？？？」と思って、どうにもこうにも「なに言ってんの？」と思った思い出ポイントが、今回の章に出てきていたので、過去の与太話を紹介しようと思う。
+
+🟣 ここから先は Django と格闘したぷに蔵の与太話です 
+
+なので、読まなくていいと思う。
+でも、いつか同じ罠にハマった人のために説明しておきたい笑
+
+```python
+widgets = {
+  ...
+  "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
+}
+```
+モデルフォーム内のウィジェット設定ね。（ここでのウィジェットは、フォームの見た目と入力UIに使うもの）
+これ見たとき、本当に意味不明だった。
+だってね、models.py では image フィールドは models.ImageField で作ってたのよ。
+```python
+# models.py
+class GalleryPiece(models.Model):
+    name = models.CharField(max_length=100)  
+    created_at = models.DateTimeField(null=True, blank=True)
+    memo = models.TextField()
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+```
+
+でも、forms.py の ModelForm の widgets では、こう書かれる。
+```python
+# forms.py
+class GalleryPieceForm(forms.ModelForm):
+    class Meta:
+        ...
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "名前"}),
+            "created_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-control"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+            "memo": forms.Textarea(attrs={"class": "form-control", "rows": 5}),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
+        }
+```
+
+**この差が、混乱。**
+🔹 **image = models.ImageField()**
+♦️ **"image": forms.ClearableFileInput()**
+
+いまなら、**こっちの２つだって違うだろ‼️**ってツッコめる。
+🔹 **name = models.CharField()**
+♦️ **"name": forms.TextInput()**
+
+でもText と Char は、なんか同じ部類じゃん？という意味のわからない思い込みが、自分の中にあったんだと思う。。。
+
+Django にちょっと慣れてきた頃のぷに蔵の頭の中には、
+「**models.py で定義したモデルから ModelForm で自動的にフォームを作成してるんだから、データ型だって同じに指定したら良いんでしょ**」という、謎理論が生まれていた。
+それこそが間違いだった。
+「半分間違い」とか言いたいけど、概ね間違えている笑
+
+そもそも、モデル / フォーム / ウィジェット は、すべてを分けて考えるべきだった。
+あくまで、Django が裏で結びつけているだけで、それぞれは独立した機能ということを意識しておかないといけなかったの。
+そこを抑えておかなかったから、widgets = {}内に「 "image" = forms.ImageField(…) 」とか書き続けて、永遠にattrsエラー（**'ImageField' object has no attribute 'attrs'**）喰らってた笑 
+
+💠 こちらの表をご覧いただきたい。
+| レイヤー | 指定 | 役割 | attrs |
+|--------------|------|--------------|---------|
+| モデル | models.ImageField() | DB定義（テーブル列の性質） | ない |
+| フォーム | forms.ImageField() | フォーム入力のバリデーション等 | ない |
+| ウィジェット | forms.ClearableFileInput() | HTMLの表示担当 | ある（class追加とか） |
+
+**forms.ImageField(…) とは、フォームに新しいフィールド追加のときに使うもの**だから、そもそも widgets では使わない。
+「なに言ってるか分かんない……」ってなるよね。
+これね、色々作っていく過程で「は！そういうことか！」ってなると思う。
+
+もう少し噛み砕いてみる！！
+
+まず、入力フォームを作るときには、２種類の作り方があるのよ。
+
+1. モデルに定義されているフィールドを、Django に自動でフォームに反映してもらうやり方
+（forms.ModelForm を継承する。モデル定義を使うから、モデルの指定が必要）
+```python
+class GalleryPieceForm(forms.ModelForm):
+  class Meta:
+    model = GalleryPiece
+```
+2. フォームを１から自作するやり方
+（forms.Form を継承する。モデル定義は使わないから、テーブルに保存するフィールドも自分で書いていく。CBV でやるということ。操作対象のモデルは、ハードコーディング内で指定していく）
+```python
+class UploadForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    image = forms.ImageField(required=True)
+```
+「forms.ImageField(…)」という指定は、フォーム作成のフィールドタイプとして準備されている。
+（だから、widgets に書いたときにも補完が効いちゃってミスに気づくの遅くなったんだよね〜...という言い訳ｗ）
+
+前出💠表の「フォームレイヤー」というのは、あくまで、自作フォームの話。
+モデルフォームの場合にはフィールド自動追加がされるからね。
+
+そして、「ウィジェットレイヤー」の forms.ClearableFileInput() というのは、**モデルの FileField / ImageField の定義箇所にデフォルトで割り当てられるウィジェットのこと。
+だから、**モデル定義で models.ImageField() を設定したフィールドに対して、フォームにおけるウィジェット機能を使用したいなら「 forms.ClearableFileInput() 」を使用することが決まり**。
+
+そんなことを理解するまで、時間が掛かりました、というお話でした。
 
