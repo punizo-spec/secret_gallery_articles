@@ -1565,19 +1565,263 @@ def post(self, request, *args, **kwargs):
     return super().post(request, *args, **kwargs)
 ```
 
+🟦 今回、**どうやって削除メッセージを表示させたのか**を、ちょっとだけ説明しておくね。
+
+削除ボタンを押すと、DeleteView は対象オブジェクト（データ）の削除処理に入るんだけど、その前に def post() という関数をオーバーライドして、通知メッセージを渡す処理を入れたの。
+
+ちょっと何言ってるか分からないよね。
+
+まず、ビューの処理が走るときって、データの送信には全て POST メソッドを使用しているの。
+コードを見返してもらうと分かると思うけど、どのフォームにも {% csrf_token %} が付いてるでしょ？
+あれは、POSTメソッドでデータを送りますよ」という Django の合図。
+
+そして、Django のビューは**フォームが送信されたら、まず post() を実行する**の。だから、その post() 実行のときに **削除の直前に messages 通知を仕込む** 処理を追加することにしたんだ。
+
+あとは、テンプレート側で {% if messages %} … {% endif %} の範囲を書いてあげれば、ちゃんと通知が表示されるので、list.html に表示コードを入れ込んだのでした🌿
+
 :::message
-**どうやって削除メッセージを表示させたの**？って気になるよね。<br>
-削除ボタンを押すと、DeleteView が対象のオブジェクト（データ）を取り出して削除を実行するの。
-そのとき「削除しました！」って通知を出したいから、def post() という関数をオーバーライドして、メッセージを積んでる。<br>
-「なんで post が関係あるの？」って思うかもしれないけど、いままで作ってきたビューのフォーム送信は、実は全部 POST を使っていた。
-フォームに {% csrf_token %} を仕込んで送信したら、ビューはまず POSTメソッドから処理を始める。（それぞれのクラスには処理の順番が明確にあるのよ）<br>
-だから削除処理の直前で post() を上書き（オーバーライド）すれば、「削除処理 ＋ messages 送信」を自分で仕込める。
-そして、テンプレート側（list.html）では {% if messages %} … {% endif %} で受け取って、表示するためのコードを入れ込んであげる。<br>
-これで、削除後に「完了しました」というメッセージ通知表示ができあがるよ🌿
+ 🫛 豆知識
+本番では「データを削除せずに見えなくする」論理削除という手法も使っているよ。
+データベース上からデータは消さずに、データの有効/無効をフラグで管理するやり方なんだけど・・・実際は、論理削除を選択することが多いんじゃないかな🧐<br>
+企業が会員データや決済データなどを持つ場合、そのデータを完全に削除してしまうと、後から問い合わせがあったり、金融監査があったりしたときに、何も答えられなくなってしまうよね。
+そうなると、企業経営の論拠が示せない事態に陥ってしまうので、データを根こそぎ削除することはオススメできない。<br>
+とはいえ、CRUD アプリを作るときに DeleteView は絶対に必要な経験なので、今回は「論理削除」ではなく「物理削除」にトライしてもらったよ🌻
 :::
 
-## 10. 本当の現場の delete 作業
-## 11. ギャレリーフィナーレ
+## 10. ギャラリーフィナーレ
+最後は、ギャラリーページを作成して、この章のフィナーレを飾る！！
+使用するビューはListView。一気にコーディングしていってくれ！
+
+♦️ gallery.html を作成してコード記入
+♦️ views.py にギャラリー用のクラスを追加
+♦️ urls.py にルーティング
+♦️ index.html にリンクを追加
+
+
+1. gallery.html を作成してコード記入
+```html
+<!-- sg_pieces/templates/sg_pieces/gallery.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー{% endblock %}
+{% block content %}
+
+  <h1 class="text-center mb-4 mt-4">✨ ギャラリー ✨</h1>
+  <div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for piece in object_list %}
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            {% if piece.image %}
+              <div class="d-flex align-items-center justify-content-center" style="height: 250px; overflow: hidden;">
+                <img src="{{ piece.image.url }}" alt="{{ piece.name }}"
+                     class="img-fluid"
+                     style="max-height: 100%; max-width: 100%; object-fit: contain;">
+              </div>
+
+            {% else %}
+              <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                   style="height: 250px;">
+                <span class="text-muted">画像未登録</span>
+              </div>
+            {% endif %}
+            <div class="card-body">
+              <h5 class="card-title">{{ piece.name }}</h5>
+              <p class="card-text"><strong>登録日：</strong>{{ piece.created_at|date:"Y-m-d H:i" }}</p>
+              <p class="card-text">{{ piece.memo|linebreaks }}</p>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col">
+          <div class="alert alert-secondary w-100 text-center">まだ作品が登録されていません😢</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ページネーション -->
+  {% if is_paginated %}
+    <nav class="mt-4 d-flex justify-content-center">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">&laquo;</span>
+          </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">&raquo;</span>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+{% endblock %}
+```
+
+2. views.py にギャラリー用のクラスを追加
+```python
+# sg_pieces/views.py
+class GalleryPieceView(ListView):
+    model = GalleryPiece
+    template_name = "sg_pieces/gallery.html"
+    paginate_by = 3
+```
+
+3. urls.py にルーティングを追加
+```python
+# sg_pieces/urls.py の追加箇所のみ
+    path('gallery/', views.GalleryPieceView.as_view(), name='piece_gallery'),   # 🌟 追加
+```
+
+4. index.html にリンクを追加
+
+```html
+<!-- sg_pieces/templates/sg_pieces/index.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー TOP{% endblock %}
+{% block content %}
+
+      <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+      <div class="list-group d-grid gap-3 mx-auto text-center" style="max-width: 300px;">
+        <a href="{% url 'piece_create' %}" class="list-group-item list-group-item-action">作品を登録する</a>
+        <a href="{% url 'piece_list' %}" class="list-group-item list-group-item-action">作品を確認する</a>
+        <a href="{% url 'piece_gallery' %}" class="list-group-item list-group-item-action">ギャラリー</a>
+      </div>
+
+{% endblock %}
+```
+
+ここまで設定して、ブラウザをリロードすると・・・
+
+出たーーー！！
+![](/images/c4_p9_20_gallery.png)
+
+まごうことなき、✨ ギャラリー ✨だね！！！
+（絵については、何も言わないでください。。コーディング考えるだけで精一杯だったよ笑）
+
+:::message
+**ページネーションとは**
+is_paginated っていうのは、「ページネーション（ページ分け）が有効になってるかどうか？」を判定する変数。<br>
+ビューに paginate_by = 数字 を書いておくと、Djangoが自動的にページ分けをしてくれるんだけど、そのときに is_paginated が True になるよ。<br>
+だから、テンプレートでは  {% if is_paginated %} ... {% endif %} の中にナビゲーション（前へ・次へ）表示を書いておけば、「ページが分かれてるときだけ」ページネーションが出るようになる。<br>
+例えば作品が 5件だけなら、1ページで全部表示されるからページネーションは不要。
+でも作品が 20 件あったら、3×3=9件ずつ表示にすると、3ページに分かれることになる。<br>
+この「ページが分かれているかどうか？」を教えてくれるのが is_paginated なの。
+:::
+
+
+実は、views.py の class GalleryPieceListView(ListView):には、すでに paginate_by = 10 を設定していたの！
+だから、最後に list.html にも、同じページネーションコードを追加しておこう！！
+
+下記は list.html の完成コード。
+ページネーションは、「リスト一覧」と「トップに戻る」の間に入れてみたよ。
+```html
+<!-- sg_pieces/templates/sg_pieces/list.html -->
+{% extends 'sg_pieces/base.html' %}
+{% block title %}秘密のプライベートギャラリー List{% endblock %}
+{% block content %}
+
+  <h1 class="text-center mb-4 mt-4">秘密のプライベートギャラリー</h1>
+    <ul class="list-group list-group-flush mx-auto mt-4" style="max-width: 400px;">
+      {% for piece in pieces %}
+        <li class="list-group-item">
+          {{ piece.id }} {{ piece.name }}
+        <span class="float-end">
+          <!-- 画像のサムネイル表示 -->
+          {% if piece.image %}
+          <img src="{{ piece.image.url }}" alt="{{ piece.name }}" style="height:40px; width:40px; object-fit:cover; border-radius:6px;">
+          {% endif %}
+          <!-- リンク表示 -->
+          <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
+          <!-- <a href="{{ piece.get_absolute_url }}" class="btn btn-outline-info btn-sm">詳細</a> -->
+          <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-secondary btn-sm">編集</a>
+          <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
+        </span>
+        </li>
+
+      {% empty %}
+        <li class="list-group-item">まだ作品が登録されていません😢</li>
+      {% endfor %}
+
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+
+    <!-- ページネーション -->
+    {% if is_paginated %}
+      <nav class="mt-4 d-flex justify-content-center">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;</span>
+            </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+    <a href="{% url 'index' %}" class="mt-4 mx-auto btn btn-outline-primary" style="width:130px;">トップに戻る</a>
+    </ul>
+    
+    <!-- Bootstrapの閉じるボタンを効かせる用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+```
+
+これでギャラリーの骨格が完成！！！
+え？質素、だって？
+うん、そうだんだけどさ・・・
+
+装飾はお任せ致します🙇だわ笑
+
 
 ## 📕 model と form と widgets と。
 ぷに蔵が最初「え？？？」と思って、どうにもこうにも「なに言ってんの？」と思った思い出ポイントが、今回の章に出てきていたので、過去の与太話を紹介しようと思う。
@@ -1680,4 +1924,5 @@ class UploadForm(forms.Form):
 だから、**モデル定義で models.ImageField() を設定したフィールドに対して、フォームにおけるウィジェット機能を使用したいなら「 forms.ClearableFileInput() 」を使用することが決まり**。
 
 そんなことを理解するまで、時間が掛かりました、というお話でした。
+
 
