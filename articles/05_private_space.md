@@ -172,8 +172,12 @@ urlpatterns = [
 
 まずはこの２つ。
 > - **{% csrf_token %}**
-POST フォームを Django で扱う場合の頻出テンプレートタグの「改ざん防止トークン」。これがないと「CSRF（クロスサイトリクエストフォージェリ）対策エラー」でフォーム送信が弾かれるよ！！
+POST フォームを Django で扱う場合の頻出テンプレートタグの「改ざん防止トークン」が {% csrf_token %} だよ。
+CSRF とは、「クロスサイトリクエストフォージェリ」という、悪意あるサイトから勝手にリクエストを送られる攻撃手法のこと。
+Django は {% csrf_token %} をフォームに入れておくだけで、自動的に防御してくれる！
+逆にいうと、これがないと「CSRF対策エラー」で、フォーム送信が弾かれる。
 ※GETフォームでは不要。POST のときだけが必須ね。
+
 > - **{{ form.as_p }}**
 「モデルから自動生成したフォーム」を簡易レンダリングで表示してくれる。各フィールドを <p> でラップしているよ。
 ※ 「レンダリング」とは、View で定義したモデル情報をテンプレートファイルに渡して表示すること。
@@ -512,7 +516,7 @@ Bootstrap についての詳細設定は、公式がたくさん説明してく�
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
-    <main class="container py-4">
+    <main class="container py-1">
         {% block content %}
         <!-- ページごとの中身がここに入る -->
         {% endblock %}
@@ -1521,7 +1525,6 @@ class GalleryPieceDeleteView(DeleteView):
           {% endif %}
           <!-- リンク表示 -->
           <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
-          <!-- <a href="{{ piece.get_absolute_url }}" class="btn btn-outline-info btn-sm">詳細</a> -->
           <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-secondary btn-sm">編集</a>
           <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
         </span>
@@ -1775,8 +1778,7 @@ is_paginated は、「ページ分けされているかどうか」をテンプ�
 ```
 
 実装コードの中に HTMLの特殊文字（エンティティ）の「 `&laquo;` 」があったよね。
-Django のページネーションでよく使うエンティティがあるから、置いておくね。
-いつか誰かの役に立つといいなぁ🎋
+Django のページネーションでよく使うエンティティがあるから、置いておくね🎋
 
 | エンティティ    | 表示 | 用途               |
 | --------- | -- | ---------------- |
@@ -1784,14 +1786,12 @@ Django のページネーションでよく使うエンティティがあるか�
 | `&raquo;` | »  | 最後のページへ（または「次へ」） |
 | `&lt;`    | <  | 前へ（代替）           |
 | `&gt;`    | >  | 次へ（代替）           |
-
 :::
 
 
-そして、実は、class GalleryPieceListView(ListView): には、すでに paginate_by = 10 を設定していた！
-「あとで実装する」とだけ書いて放置していたの、誰か気づいてた？？
+そして、実は、class GalleryPieceListView(ListView): には、すでに paginate_by = 10 を設定していた！「あとで実装する」とだけ書いて放置していたの、誰か気づいていた？？
 
-だから最後に list.html にも、同じページネーションを追加しておこう！！
+だから最後に list.html にも、同じページネーションを追加しておこうね。
 
 下記は list.html の完成コード。
 ページネーションは、「リスト一覧」と「トップに戻る」の間に入れてみたよ。
@@ -1813,7 +1813,6 @@ Django のページネーションでよく使うエンティティがあるか�
           {% endif %}
           <!-- リンク表示 -->
           <a href="{% url 'piece_detail' piece.pk %}" class="btn btn-outline-info btn-sm">詳細</a>
-          <!-- <a href="{{ piece.get_absolute_url }}" class="btn btn-outline-info btn-sm">詳細</a> -->
           <a href="{% url 'piece_update' piece.pk %}" class="btn btn-outline-secondary btn-sm">編集</a>
           <a href="{% url 'piece_delete' piece.pk %}" class="btn btn-outline-danger btn-sm">削除</a>
         </span>
