@@ -1608,7 +1608,7 @@ def post(self, request, *args, **kwargs):
   <h1 class="text-center mb-4 mt-4">✨ ギャラリー ✨</h1>
   <div class="container mt-4">
     <div class="row row-cols-1 row-cols-md-3 g-4">
-      {% for piece in object_list %}
+      {% for piece in pieces %}
         <div class="col">
           <div class="card h-100 shadow-sm">
             {% if piece.image %}
@@ -1627,7 +1627,7 @@ def post(self, request, *args, **kwargs):
             <div class="card-body">
               <h5 class="card-title">{{ piece.name }}</h5>
               <p class="card-text"><strong>登録日：</strong>{{ piece.created_at|date:"Y-m-d H:i" }}</p>
-              <p class="card-text">{{ piece.memo|linebreaks }}</p>
+              <p class="card-text">{{ piece.memo|linebreaksbr|truncatechars:120 }}</p>
             </div>
           </div>
         </div>
@@ -1683,6 +1683,7 @@ def post(self, request, *args, **kwargs):
 class GalleryPieceView(ListView):
     model = GalleryPiece
     template_name = "sg_pieces/gallery.html"
+    context_object_name = "pieces"
     paginate_by = 3
 ```
 
@@ -1720,17 +1721,77 @@ class GalleryPieceView(ListView):
 
 :::message
 **ページネーションとは**
-is_paginated っていうのは、「ページネーション（ページ分け）が有効になってるかどうか？」を判定する変数。<br>
-ビューに paginate_by = 数字 を書いておくと、Djangoが自動的にページ分けをしてくれるんだけど、そのときに is_paginated が True になるよ。<br>
-だから、テンプレートでは  {% if is_paginated %} ... {% endif %} の中にナビゲーション（前へ・次へ）表示を書いておけば、「ページが分かれてるときだけ」ページネーションが出るようになる。<br>
-例えば作品が 5件だけなら、1ページで全部表示されるからページネーションは不要。
-でも作品が 20 件あったら、3×3=9件ずつ表示にすると、3ページに分かれることになる。<br>
-この「ページが分かれているかどうか？」を教えてくれるのが is_paginated なの。
+
+> {% if is_paginated %} … {% endif %}
+
+> {% if page_obj.has_previous %} … {% endif %}
+
+> {% for num in page_obj.paginator.page_range %}
+>   {% if page_obj.number == num %} … {% endif %}
+> {% endfor %}
+
+is_paginated は、「ページ分けされているかどうか」をテンプレート側で判定するための ListView のクラス変数。
+ビューに paginate_by = 分割数 を設置するだけで、Django が自動的にページネーションの仕組みを用意してくれるよ。
+そして、テンプレートに表示されるデータ数が複数ページに分かれる場合だけ、is_paginated が True になる。
+
+1. テンプレートは、最初に is_paginated を使って、**「ページネーションのナビゲーション（前へ・次へ）を表示するかどうか」**を判断する。
+これが、ページネーションの基本。
+```django
+{% if is_paginated %}
+  ... ページナビゲーション表示 ...
+{% endif %}
+```
+
+そして、ナビゲーション内では page_obj という変数が使えるようになっているのね。
+ここで、
+- page_obj.has_previous：前のページがあるか？
+- page_obj.has_next：次のページがあるか？
+- page_obj.paginator.page_range：ページ番号の一覧
+- page_obj.number：いま表示中のページ番号
+・・・など、ページに関する情報を簡単に扱えるよ！
+
+だから、テンプレート内でページネーションを実装すると、下記のようになるのね。
+```django
+{% if is_paginated %}
+
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+  {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <span>{{ num }}</span>  ← ここが現在のページ
+      {% else %}
+        <a href="?page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">次へ</a>
+  {% endif %}
+
+{% endif %}
+
+```
+
+実装コードの中に HTMLの特殊文字（エンティティ）の「 `&laquo;` 」があったよね。
+Django のページネーションでよく使うエンティティがあるから、置いておくね。
+いつか誰かの役に立つといいなぁ🎋
+
+| エンティティ    | 表示 | 用途               |
+| --------- | -- | ---------------- |
+| `&laquo;` | «  | 最初のページへ（または「前へ」） |
+| `&raquo;` | »  | 最後のページへ（または「次へ」） |
+| `&lt;`    | <  | 前へ（代替）           |
+| `&gt;`    | >  | 次へ（代替）           |
+
 :::
 
 
-実は、views.py の class GalleryPieceListView(ListView):には、すでに paginate_by = 10 を設定していたの！
-だから、最後に list.html にも、同じページネーションコードを追加しておこう！！
+そして、実は、class GalleryPieceListView(ListView): には、すでに paginate_by = 10 を設定していた！
+「あとで実装する」とだけ書いて放置していたの、誰か気づいてた？？
+
+だから最後に list.html にも、同じページネーションを追加しておこう！！
 
 下記は list.html の完成コード。
 ページネーションは、「リスト一覧」と「トップに戻る」の間に入れてみたよ。
