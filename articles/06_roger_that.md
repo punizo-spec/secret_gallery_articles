@@ -384,9 +384,9 @@ secret_gallery
 ├── manage.py
 ├── media
 │   └── images
-│       ├── image_ahiru_xFhdZO7.png
-│       ├── image_ankho_CsFwWQr.png
-│       └── image_mendako_ZZmYmNe.png
+│       ├── image_ahiru.png
+│       ├── image_ankho.png
+│       └── image_mendako.png
 ├── secret_gallery
 │   ├── __init__.py
 │   ├── asgi.py
