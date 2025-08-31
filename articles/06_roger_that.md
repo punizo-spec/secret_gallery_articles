@@ -21,7 +21,7 @@ published_at: 2050-08-20 00:00 # 未来の日時を指定する
 1. **login.html の作成**
 まずは、作成するフォルダなんだけど、いままでの アプリ内 templates ではなく、さらにその直下に「 registration 」フォルダを作って、その中に login.html を置いてもらう必要がある。
 つまり、構造としては、templates/registration となるね。そして、そのフォルダの中に login.html を作成するよ！
-```html
+```django
 <!-- sg_pieces/templates/registration/login.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー{% endblock %}
@@ -44,7 +44,7 @@ published_at: 2050-08-20 00:00 # 未来の日時を指定する
 {{ form.as_p }}を使用すると、すべてのフォームフィールドが一気に並んでしまう！
 だから、個々のフィールド UI を CSS でカスタムしたい人には不向きなんだよね。
 その場合は、こんな感じで、フォームをバラすことも可能！
-```html
+```django
 <!-- sg_pieces/templates/registration/login.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー{% endblock %}
@@ -258,7 +258,7 @@ LOGOUT_REDIRECT_URL：ログアウトが終わったらここに戻る。
 ここでは、現在ログイン中のとき、どのように画面上に表示するのかを設定していくよ！
 
 まずは突然ですが、base.html を下記に書きかえていただけるかな？
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/base.html -->
 {% load static %}
 <!DOCTYPE html>
@@ -344,7 +344,7 @@ if settings.DEBUG:
 
 **🟦 「static() 関数」と「static フォルダ」は別モノだということを！！**
 - static() 関数（urls.pyで使うやつ）は？
-Django が「開発モード（DEBUG=True）のときだけ、指定したフォルダをWeb経由で配信するよ〜」という便利関数。
+Django が「開発モード（DEBUG=True）のときだけ、指定したフォルダをローカルサーバー経由で配信するよ〜」という便利関数。
 通常は、下記コードのように、urlpatterns += static() のように使うよ。
 ```python
 from django.conf import settings
@@ -427,29 +427,21 @@ secret_gallery
     └── views.py
 ```
 
-**sg_pieces/static/sg_pieces/css/style.css** は見つけられた？
+上記のツリーから **sg_pieces/static/sg_pieces/css/style.css** は見つけられた？
 その位置に、ファイルを作ってほしい。
 
 そして、style.css ファイルの中身はこちら。
 ```css
-.navbar a{
-  font-size: 14px;
-}
-
 .navbar a {
+  font-size: 14px;
   text-decoration: none;
   border: none;
   background: none;
   outline: none;
 }
 
-/* ホバー時に点線の下線 */
 .navbar a:hover {
   text-decoration: underline dotted;
-}
-
-.navbar link:hover {
-  border-bottom: 1px dotted #0d6efd; /* Bootstrap の secondary カラーに合わせた */
   cursor: pointer;
 }
 ```
@@ -463,7 +455,20 @@ secret_gallery
 STATIC_URL = "static/"
 ```
 
-base.html に、まだ触れていなかったコードがあったよね。
+:::message
+🫛豆知識
+static を使うためには、settings.py の INSTALLED_APPS 内に`django.contrib.staticfiles` が入っていないと使えないよ。
+間違えて削っちゃった人がいたら、入れておいてね。
+```python
+INSTALLED_APPS = [
+    ...
+    "django.contrib.staticfiles",
+    ...
+]
+```
+:::
+
+base.html に、まだ触れていなかったコードがあったね。
 > ♦️ {% load static %}
 > ♦️ <link rel="stylesheet" type="text/css" href="{% static 'sg_pieces/css/style.css' %}">
 
@@ -472,6 +477,7 @@ base.html に、まだ触れていなかったコードがあったよね。
 - <link rel="stylesheet" type="text/css" href="{% static 'sg_pieces/css/style.css' %}">
 {% static 'sg_pieces/css/style.css' %} は staticファイルのURLを自動で組み立ててくれるタグ。
 STATIC_URL の設定をもとに、正しいパスに変換してくれるよ。
+{% static %} を書くと、STATIC_URL の設定をもとに、Django が自動的にルートディレクトリやアプリ内の static ディレクトリを探してくれる。
 
 例えば、STATIC_URL = "static/" の場合、
 {% static 'sg_pieces/css/style.css' %} → /static/sg_pieces/css/style.css
@@ -516,7 +522,7 @@ CDN（Content Delivery Network）は、画像やCSS、JavaScriptみたいな「�
 静的ファイルなので、static の中にあることが大事！
 
 それでは、これを index.html に設置しよう。
-```html
+```django
 {% extends 'sg_pieces/base.html' %}
 {% load static %}
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
@@ -541,12 +547,25 @@ CDN（Content Delivery Network）は、画像やCSS、JavaScriptみたいな「�
 ・・・・はみ出してるわ笑
 
 こんなときこそ css で調整しよう！！
-style.css の一番上に、下記のコードを追加して！
+style.css の一番上にロゴに関するコードを追加するので、style.css の完成形はこれ！
 ```css
-/* sg_pieces/static/sg_pieces/css/style.css の先頭に追加 */
+/* sg_pieces/static/sg_pieces/css/style.css */
 .logo-img {
   max-width: 300px;
   height: auto;
+}
+
+.navbar a {
+  font-size: 14px;
+  text-decoration: none;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.navbar a:hover {
+  text-decoration: underline dotted;
+  cursor: pointer;
 }
 ```
 
@@ -566,37 +585,305 @@ class の追加だよ！
 ちゃんとブラウザの枠内に収まった！！！
 これで本当に完成！！！！！
 
-## STATIC という魔術
-:::message
-**Django の静的ファイルって、わりと混乱しがち**
-Django プロジェクトで静的ファイルの配信は、本番環境だと下記のように settings.py に設定する。
+## 04. テンプレートタグの {% extends %} と {% static %}
+
+'static' フォルダ / ファイルについては理解してもらえた？
+今回は、ローカル環境における STATIC 設定と、本番環境における STATIC 設定を理解する前提知識として、{% static %}テンプレートタグについて書いていくね。
+
+**Django の静的ファイル 'static' って、わりと混乱しがち**
+
+ローカル環境であれば、settings.py にこれだけ書いてあれば、静的ファイルが配信される。
 ```python
 STATIC_URL = "static/"
+```
 
+ただし、必ずテンプレートファイルの読み込みだけは忘れちゃだめね。
+これを最初に書く必要がある。
+```django
+{% load static %}
+```
+
+
+あれ？
+でも、さっき書いた index.html では、{% load static %} の前に {% extends 'sg_pieces/base.html' %} があったよね。
+これはどういうことだ？？
+
+実はこの２つ、明確に読み込む順番が決まっている！
+というか、**{% extends %} で読み込むのは base.html だけ！**
+いっそ、そう覚えてしまってくれ！！
+
+**🟦 {% extends %} は base.html 専用のテンプレートタグなの？**
+**YESSSSSS！！！**
+正確には、base.html で共通テンプレを作成しないことも可能だから、base.html 専用ではないんだけど笑
+でも Django での共通テンプレートは一般的に base.html で作成するから、
+**{% extends %} は base.html 専用のテンプレートタグ**て言い切っちゃう笑
+
+
+そして、{% load static %} よりも先に {% extends %} を書く理由は、
+🟢 **'static' よりも前に base.html を継承しておかないと、** 🟠
+🟢 **テンプレートエンジンがブロック（{% block %}）の意味を解釈できないから** 🟠
+
+index.html の最後の修正は、こんな最終形態コードになったよね。
+```django
+...
+{% block content %}
+
+  <div class="text-center">
+    <img src="{% static 'sg_pieces/title_logo.png' %}" alt="秘密のプライベートギャラリー" class="logo-img img-fluid">
+  </div>
+...
+{% endblock %}
+```
+
+{% block content %} 内で {% static %} を使っている。
+ということは、先に {% block %} の位置をテンプレートタグが理解しておかないと、Django はテンプレートタグ迷子（エラー）になってしまうの。
+だから、読み込み順番とても大事！！
+
+```django
+{% extends %}
+{% load %}
+```
+
+:::message
+「ということは、base.html の冒頭で {% load static %} してるから、index.html では {% load static %} だね？」
+という疑問に、お答えします。
+
+**Non！！！！！**
+
+ここが、ぷに蔵的にも「なぜだ・・」ポイントなんだけど笑
+{% load static %} は、テンプレートタグとして static を使いたいファイルで、必ず読み込まないとダメ！
+なぜなら、Django の天才エンジニアたちがそういう風に作ったから！
+理屈じゃない！！天才に従う以外の道はない！！<br>
+でも、ま、多分、継承とか干渉とか色々あったんじゃない〜？（テキトー）<br>
+そういうわけなので、base.html に {% load static %} が書いてあって、そのファイルを {% extends base.html %} しても、その先で {% static %} 使いたいなら、もう一度 {% load static %} を読み込まないとダメですよ〜〜〜。
+:::
+
+
+settings.py の STATIC 設定の話をしようと思ったが、だいぶズレてきたね。
+でも、もう少しズレたまま、テンプレートタグの話をしておきたい。
+
+{% extends %} が base.html 専用テンプレートタグだと言ったけど、もしかすると、他にも切り出して使いたい HTMLテンプレートファイルが、無いとは言えないよね。
+たとえば、すっごく簡単だけど、こういうテンプレート。
+
+例: _back_to_top.html
+```html
+<div>
+  <a href="{% url 'index' %}" class="mt-3 btn btn-outline-primary" style="width:130px;">トップに戻る</a>
+</div>
+```
+
+毎回「トップに戻る」を書くのは面倒。
+そんなとき、パーツとして「 _back_to_top.html 」というテンプレートを作っておいて、それを読み込めば、メンテナンス性も上がって楽できる⭐︎
+
+そんなときに使うテンプレートタグは **{% include %}** で、使い方も同じ。
+```html
+{% include '_back_to_top.html' %}
+```
+
+これで、パーツ読み込みが可能になる！
+便利な小技なので、良かったら覚えてね🌻
+※ テンプレートファイルの先頭につけたプレフィックスの「_(アンダースコア)」は、パーツを意味するよ（慣習的にね。絶対的な決まりではない）。
+
+
+## 05. エラー出がちな STATIC 設定
+
+STATIC ファイルを静的配信しようとしたとき、わりと
+「static の設定が効かない！」
+「style.css が反映されない」
+「プロジェクト直下に cssファイル置きたい」
+という声を聞くのね。
+
+
+これは、ルート設定を理解すれば解決できる！
+これが最後のパートだから、がんばろうね！！
+
+まず、設定の仕方からいくね。
+設定する項目は、最大で３つ。
+1. settings.py の設定
+```python
+STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
 STATIC_ROOT = BASE_DIR / "staticfiles"
 ```
 
-ひとつずつ見ていくね。
+ひとつずつ見ていこうと思う。
+１つ１つちゃんと役割があるから、しっかり理解しよう！
 
-- STATIC_URL
-ブラウザからアクセスするときのURLの先頭部分。
-例: STATIC_URL = "static/"
- → 実際のURLは http://127.0.0.1:8000/static/xxx
+1. **STATIC_URL**
 
-- STATICFILES_DIRS
-開発モードで追加の静的ファイル置き場。
-プロジェクト直下でまとめたいときに指定する。
-例: BASE_DIR / "static" に置いたCSSやJSを読み込む場合。
+`STATIC_URL` は、{% load static %} テンプレートタグを使用するためには、必ず必要な設定。
+```python
+# そして、この設定があれば Django がアプリ直下の `static` ディレクトリを探しに行く
+STATIC_URL = "static/"
+```
+※ **{% load static %} が 、どこの static ディレクトリを探すのか** を理解することが重要。
+これを理解していないと、下記のようにルート設定する意味が理解できないの。
+```django
+{% load static%}
+<link rel="stylesheet" type="text/css" href="{% static 'sg_pieces/css/style.css' %}">
+```
+> secret_gallery/sg_pieces/static/sg_pieces/css/style.css ← これが cssのルート。
+> secret_gallery/ は「プロジェクト」
+> sg_pieces/ は「 secret_gallery プロジェクト内のアプリ」
+> - **STATIC_URL = "static/"**
+この設定をしていれば、Django は sg_pieces/static/ ディレクトリ**まで**を探す。
+>
+> だから、「 href="{% static 'sg_pieces/css/style.css' %} 」というルート指定をする。
+> しつこく言っているけど、ここを理解していれば、これからの設定を迷わない最重要ポイントだから、何度も言わせて！
 
-- STATIC_ROOT
-本番用に静的ファイルを1か所に集める場所。
-python manage.py collectstatic を叩くとここに全部コピーされる。
-本番サーバーはこのフォルダだけをNginxやCDNで配信する。
-（開発モードでは不要）
+2. **STATICFILES_DIRS**
 
+次に、STATICFILES_DIRS だけど、これは追加の探索ディレクトリ。
+つまり、**アプリ配下以外に static フォルダを置きたい場合に設定する箇所**。
+逆をいえば、すべての static フォルダがアプリ内に設置してあるなら、この設定は必要ない。
+```python
+# アプリ以外の場所に staticフォルダ置きたいなら、この設定が必須
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+```
+
+settings.py の 「STATICFILES_DIRS 設定の下」くらいに、こんなコードを入れ込んで runserver してみよう。
+```python
+print("♦️ STATICFILES_DIRS:",STATICFILES_DIRS)
+```
+サーバー起動のターミナル画面に、ルート情報が出てくるはず。
+
+```
+♦️ STATICFILES_DIRS: [PosixPath('/…(略)…/secret_gallery/static')]
+```
+こんな風にルートが出力される。（…(略)… の部分は環境によって違うので、プロジェクトルートから記載）
+プロジェクト直下の static フォルダを参照していることが分かったね。
+
+・・・ということは、**この設定をすると、プロジェクト直下に staticフォルダを設置しても、Django は自動的に探しに行ってくれる！だから、プロジェクト直下にも、staticファイル を置くことが可能！**
+プロジェクト全体で使いたい css / js / アイコン / 画像 があれば、アプリ配下じゃない場所に置いた方が、プロジェクト構造的にマッチする場合もありそうね！
+
+![](/images/c5_p5_23_static.png =500x)
+これは初出の知識だよ！
+（本当なら templates でも同じ構造という説明ができるから出したかったんだけど、プロジェクトルート下で共通テンプレ化する構造が思い浮かばなかった🙏懺悔）
+
+
+3. STATIC_ROOT
+
+これは、本番用サーバーのための設定。
+いままでは、Django のプロジェクトルート内の話だったから、ROOT_URL / STATICFILES_DIRS を設定するだけで、Django がローカル環境なら静的ファイルを配信してくれる仕組みが出来上がっていた。
+
+だけど、本番環境だと、静的ファイルは Django が配信することができない。
+なぜなら、Django はルートディレクトリしか分からないから。
+本番では https://グローバルIP/static/css/style.css みたいな配信 URL になるでしょ？
+そうなると、Django ではグローバルIP を知ることができないから、本番サーバーに静的ファイルを乗せられないの。
+
+
+そんなときのために、STATIC_ROOT が存在する。
+```
+STATIC_ROOT = BASE_DIR / "staticfiles"
+```
+この設定をして、本番サーバーで、staticファイルを集めるコマンドを唱える。
+```
+python3 manage.py collectstatic
+```
+
+そうすると、STATIC_URL / STATICFILES_DIRS に設定されている staticファイル全てが、
+ルートディレクトリ直下に staticfiles というディレクトリを作って、その中に staticファイルを集めてくる。
+
+:::message
+🫛豆知識
+
+静的ファイルを集めてくる魔法の言葉。
+**python3 manage.py collectstatic**
+
+最後に、流れを確認して終わりにしようね！
+
+- STATICFILES_DIRS：開発中に「ここに置いた CSS / JS ...などを使いたい！」というときに設定する。複数のときは、リストで指定可能。
+
+もしも、アプリ直下に static フォルダを置かずに、プロジェクト直下で staticファイルを全て管理したい場合には、こういう構造にもできるね。
+```django
+project/
+├── static/             # 🔴 プロジェクト共通の CSS や JS
+├── app1/static/app1/   # 🔵 app1 の CSS や JS
+└── app2/static/app2/   # 🟡 app2 の CSS や JS
+```
+このときは、STATIC_URL の設定はなくてOK！
+
+代わりに、この設定が必要。
+```django
+STATICFILES_DIRS = [
+    BASE_DIR / "static",        # 🔴
+    BASE_DIR / "app1/static",   # 🔵
+    BASE_DIR / "app2/static",   # 🟡
+]
+```
+
+**さて。ここでクイズです‼️**
+
+この２つ、実は「入力元」のフォルダ設定。
+🟩 STATIC_URL = "static/"
+🟧 STATICFILES_DIRS = []
+
+対するこちらは、collectstatic による「出力先」フォルダの設定。
+🟦 STATIC_ROOT = BASE_DIR / "staticfiles"<br>
+**もしも、STATIC_ROOT を下記のように設定した場合、Django はどのような動きをするでしょうか❓ ❓ ❓**
+```
+STATIC_ROOT = BASE_DIR / "static"
+```
+<br>
+
+> ⭐️**こたえ**⭐️
+>　**staticフォルダ内のファイルがぐっちゃぐちゃになる！！！！！！**
+> 　**きゃーーーーーーーーーーーー**😱😱😱😱😱😱
+
+なぜなら、こういうこと・・・😱
+1. static/ にある自分のファイルをコピーしようとする
+2. でも出力先も同じ static/ だから、コピー元とコピー先がごっちゃになる
+3. 既存ファイルを上書きしたり、collectstatic の管理ファイルが混じったりでぐっちゃぐっちゃになる
+
+
+え？やったこと？
+<br>
+**あるに決まってんだろ！！！！！！笑笑笑**
+<br>
+まぁ、さ。
+STATIC_ROOT は「出力先」であって、「入力元」じゃないからさ。
+間違っても **STATIC_ROOT = "static"** なんて、ぷに蔵みたいにアホなことしちゃダメだぞ⭐️
 :::
-## 📕 Webアプリケーションできちゃった（現代社会へ降り立ったローカルDjango戦士）
+
+そして、本番サーバーにおける静的ファイルの配信は、Nginx などの Web サーバーを介して行われる仕組みです。
+（本番では、Nginx と STATIC_ROOT をつなぐ設定は、別途必要になるからね）
+
+
+## 📕 現代社会へ降り立った Django 戦士へ
+
+いままでお疲れさまでした！！
+そして、一緒にがんばってくれてありがとう！！
+
+ぷに蔵はいま、すべての章を書き終わって、感無量です・・・。
+本当に疲れた・・・・・
+矢吹ジョーのように真っ白になりそうです。右手がずっと痺れてます。
+
+初めて Django を触った人なら、分からないところも多かったよね。
+ぷに蔵も初めて Django に触ったとき、本当に右も左も分からなくて・・・むしろ、「なにこのコード？？？昨日までプログラミングやってなかったっけ？この知識、本当に必要なの？？？」とか思ってた。
+
+必要どころの話じゃないくらい、いまはどっぷり頭まで浸かって、Django エンジニア様たちを日々崇めながら使わせていただいております。
+
+
+ここから、VPS レンタルサーバーを借りたデプロイをしたり、AWS / GCP などを使用したりして、開発は続いていきます。
+（最近だと、大きい企業さんは AWS/GCP が多いかな）
+
+
+デプロイ編や、その先にも、色々機能追加を考えていましたけど、止めました。
+これ以上は、無粋かな、って。
+
+きっと、ここまで出来たのなら、自分で調べて、自分で実装する根気強さがあるはずだから、ぷに蔵が一から「ここをこうして、できたー！」ってやる必要はないと思いました。
+
+だから一度、ここで「秘密のプライベートギャラリー」プロジェクトは完成です！！
+
+
+でも、このプロジェクト自体をぷに蔵は気に入ったので、今後、これを更にゴリゴリに発展させて、個人開発で何かに使えるかな〜🧐とか思っています。
+
+
+今後のエンジニア人生の中で、いつか「秘密のプライベートギャラリーシリーズで Django 始めたよ」と言ってくれる人と出会えたら良いなという願いを込めて、ここに終了を宣言させていただきます。
+
+
+読了、ありがとうございました。

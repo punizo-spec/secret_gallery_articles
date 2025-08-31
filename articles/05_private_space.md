@@ -97,7 +97,7 @@ published_at: 2050-08-20 00:00 # 未来の日時を指定する
 2. 作品登録ページを作成する
 index.html と同じ場所に create.html というテンプレートファイルを作成して、下記の内容にしていこう！
 - このタイミングで、greeting.html ファイルを削除してしまおう！もう使わないからね。
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -339,7 +339,7 @@ list_disp;ay で指定したフィールドが全部表示されて、一覧に�
 </html>
 ```
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -396,7 +396,7 @@ list_disp;ay で指定したフィールドが全部表示されて、一覧に�
 というわけで、早速いきます！
 
 sg_pieces/templates/sg_pieces 内に base.html というファイルを作成して、下記を書いて！
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/base.html -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -414,7 +414,7 @@ sg_pieces/templates/sg_pieces 内に base.html というファイルを作成し
 ```
 
 次は、**index.html と create.html の書きかえ**をするよ！
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/index.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
@@ -429,7 +429,7 @@ sg_pieces/templates/sg_pieces 内に base.html というファイルを作成し
 ```
 
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Create{% endblock %}
@@ -505,7 +505,7 @@ Bootstrap についての詳細設定は、公式がたくさん説明してく�
 ということで、まずは親テンプレートの base.html ファイルを修正して、Bootstrap を使える状態にしていこ。
 <link href="">で Bootstrap 呼び込みをすることと、ページにス余白をつけて見やすくしたいので、<main class="">を使用して少し整地。
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/base.html -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -534,7 +534,7 @@ Bootstrap についての詳細設定は、公式がたくさん説明してく�
 ここは単純に Bootstrapクラスで見た目とリンクの見栄えだけを変える。
 
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/index.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
@@ -598,7 +598,7 @@ Djangoのフォームは、指定しないと「フィールド型に応じた�
 forms.py で フォームの振る舞いの設定は完了したので、create.html には、フォームエラーを表示させるように変更しておこう。
 あとは最低限の<label class="", for="">だけを設定だけね。
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/create.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Create{% endblock %}
@@ -841,7 +841,7 @@ Django の ImageField は最低限のバリデーションはしてくれてい�
 :::
 
 create.html は、変更と追加箇所のみ記載
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/create.html -->
   <!-- 重要：画像アップロードフォームは 必ず enctype="multipart/form-data" を付ける！付けないと動かない -->
   <form method="post" class="mx-auto" style="max-width: 450px;" enctype="multipart/form-data">
@@ -860,7 +860,7 @@ create.html は、変更と追加箇所のみ記載
 
 ## 06. 登録作品たちを並べてみるは ListView
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/index.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
@@ -877,7 +877,7 @@ create.html は、変更と追加箇所のみ記載
 
 さらに、index.html ファイルをコピーして、ファイル名は list.html に変更。
 それを、以下に書き直してみよう。
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/list.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー List{% endblock %}
@@ -988,7 +988,7 @@ ListView の最小構成は model と template_name の指定だけで良いん�
 
 
 ♦️ リストに「画像表示」＋ 「詳細・編集・削除」のリンクを追加
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/list.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー List{% endblock %}
@@ -1150,7 +1150,7 @@ ListView、勢いでイケるかと思ったけど、わりと負荷高めな内
 では、いこう。
 1. まずは、detail.html ファイルの作成（ index.html や list.html ファイルをコピペの後、修正でいいぞ！）
 中身は、下記のコードを記入。・・・か、自分の好きなように CSS は変えていいからね！
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/detail.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Detail{% endblock %}
@@ -1235,7 +1235,7 @@ views.py で form_class = GalleryPieceForm を指定すれば、そのまま Gal
 
 なので、ぷに蔵は面倒くさがりなので、create.html をコピペして、「登録」 → 「編集」に文字列変更程度だけで終わらせました！（白杖）
 一応、登録画像のプレビューも入れてあります。
-```html
+```django
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Update{% endblock %}
 {% block content %}
@@ -1342,7 +1342,7 @@ def get_absolute_url(self):
 
 
 1. piece_form.html ファイルを作成して、そこに下記コードを入力
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/piece_form.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}{{ view.object|default_if_none:"Create" }}{% endblock %}
@@ -1456,7 +1456,7 @@ class GalleryPieceUpdateView(UpdateView):
 ♦️ 2. views.py の書きかえ
 
 1. delete.html ファイルを作成して、下記のコードを入力
-```html
+```django
 
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー Delete{% endblock %}
@@ -1515,7 +1515,7 @@ class GalleryPieceDeleteView(DeleteView):
 
 ♦️ list.html を修正
 追加になるところが、**{% if messages %} … {% endif %} の部分ね。
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/list.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー List{% endblock %}
@@ -1610,7 +1610,7 @@ def post(self, request, *args, **kwargs):
 
 
 1. gallery.html を作成してコード記入
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/gallery.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー{% endblock %}
@@ -1706,7 +1706,7 @@ class GalleryPieceView(ListView):
 
 4. index.html にリンクを追加
 
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/index.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー TOP{% endblock %}
@@ -1731,21 +1731,11 @@ class GalleryPieceView(ListView):
 （絵については、何も言わないでください。。コーディング考えるだけで精一杯だったよ笑）
 
 :::message
-**ページネーションとは**
-
-> {% if is_paginated %} … {% endif %}
-
-> {% if page_obj.has_previous %} … {% endif %}
-
-> {% for num in page_obj.paginator.page_range %}
->   {% if page_obj.number == num %} … {% endif %}
-> {% endfor %}
-
+**ページネーションの使い方講座**
 is_paginated は、「ページ分けされているかどうか」をテンプレート側で判定するための ListView のクラス変数。
 ビューに paginate_by = 分割数 を設置するだけで、Django が自動的にページネーションの仕組みを用意してくれるよ。
-そして、テンプレートに表示されるデータ数が複数ページに分かれる場合だけ、is_paginated が True になる。
-
-1. テンプレートは、最初に is_paginated を使って、**「ページネーションのナビゲーション（前へ・次へ）を表示するかどうか」**を判断する。
+そして、テンプレートに表示されるデータ数が複数ページに分かれる場合だけ、is_paginated が True になる。<br>
+🟦 テンプレートは、最初に is_paginated を使って、**「ページネーションのナビゲーション（前へ・次へ）を表示するかどうか」**を判断する。
 これが、ページネーションの基本。
 ```django
 {% if is_paginated %}
@@ -1753,15 +1743,21 @@ is_paginated は、「ページ分けされているかどうか」をテンプ�
 {% endif %}
 ```
 
-そして、ナビゲーション内では page_obj という変数が使えるようになっているのね。
-ここで、
+🟦 ナビゲーション内では page_obj という変数が使えるようになっているよ。page_obj には、現在のページに関する情報が詰まっているの。
 - page_obj.has_previous：前のページがあるか？
 - page_obj.has_next：次のページがあるか？
-- page_obj.paginator.page_range：ページ番号の一覧
-- page_obj.number：いま表示中のページ番号
-・・・など、ページに関する情報を簡単に扱えるよ！
+- page_obj.paginator.page_range：ページ番号の一覧（すべてのページ数ぶん。たとえば [1, 2, 3, 4] みたいな全ページの数字一覧）
+- page_obj.number：いま表示中のページ番号（1ページ目なら 1）
 
-だから、テンプレート内でページネーションを実装すると、下記のようになるのね。
+これらは、paginate_by を使ってビュー（ views.py ）でページネーションを有効にしていれば、テンプレートでそのまま使える。
+
+> **⚠️ 少し注意が必要な書き方**
+> ♦︎♦︎ **page_obj.previous_page_number と page_obj.next_page_number** ♦︎♦︎
+> ♦️ .previous_page_number は .has_previous = True のときに呼ばないとエラーになる。
+> ♦️ .next_page_number は .has_next = True のときに呼ばないとエラーになる。
+> - だからテンプレートに書くときには、.previous_page_number / .next_page_number = True 判定の中で使用する必要がある。
+
+🟦 それらを踏まえて、テンプレート内でページネーションを実装すると、下記のようになるよ。
 ```django
 {% if is_paginated %}
 
@@ -1785,7 +1781,7 @@ is_paginated は、「ページ分けされているかどうか」をテンプ�
 
 ```
 
-実装コードの中に HTMLの特殊文字（エンティティ）の「 `&laquo;` 」があったよね。
+🟦 実装コードの中に HTMLの特殊文字（エンティティ）の「 `&laquo;` 」があったよね。
 Django のページネーションでよく使うエンティティがあるから、置いておくね🎋
 
 | エンティティ    | 表示 | 用途               |
@@ -1794,6 +1790,7 @@ Django のページネーションでよく使うエンティティがあるか�
 | `&raquo;` | »  | 最後のページへ（または「次へ」） |
 | `&lt;`    | <  | 前へ（代替）           |
 | `&gt;`    | >  | 次へ（代替）           |
+
 :::
 
 
@@ -1803,7 +1800,7 @@ Django のページネーションでよく使うエンティティがあるか�
 
 下記は list.html の完成コード。
 ページネーションは、「リスト一覧」と「トップに戻る」の間に入れてみたよ。
-```html
+```django
 <!-- sg_pieces/templates/sg_pieces/list.html -->
 {% extends 'sg_pieces/base.html' %}
 {% block title %}秘密のプライベートギャラリー List{% endblock %}
