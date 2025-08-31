@@ -174,7 +174,7 @@ class GalleryPieceView(ListView):
 ::: message alert
 🚨 **重要ポイント** 🚨
 ログイン不要でアクセス許可する仕様のトップページ（index）やログインページ自体には LoginRequiredMixin を付けないこと！
-もし付けると、無限リダイレクト地獄になるから。
+もし付けると、無限リダイレクト地獄になるから。<br>
 Django と、
 「ここはログインが必要だ、ゴラァ🤛」
 「でもログインするためのフォームは login.html に表示されるはずなんです💦」
