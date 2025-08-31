@@ -1093,7 +1093,7 @@ urlpatterns = [
   ...
 {% endfor %}
 ```
-コレ、{% url 'xxx' %} と似ているけど、初見の形だよね。
+コレ、{% url 'xxx' %} と似ているけど、初見の形だよ！
 
 実はね、 Django で使えるテンプレートタグには、大きく分けて2種類あるの。
 - **便利系タグ**：**{% url 'xxx' %}**, **{% csrf_token %}** など  
@@ -1131,7 +1131,7 @@ urls.py で 「path('detail/<int:pk>/', …………)」 と書くと、URL の�
 
 
 - **🟦 リストにサムネ表示**
-{{ piece.image.url }} で画像のURLにアクセスできる（MEDIA_URL 配信が効いてる）。  
+{{ piece.image.url }} で画像の URL にアクセスできる（MEDIA_URL 配信が効いてる）。  
 サムネは height/width 固定 ＋ object-fit: cover で四角にトリミングしたよ。
 これは、あとで画像データを登録してから、リスト表示で改めて確認してみようポイント！
 :::
@@ -1305,6 +1305,14 @@ def get_absolute_url(self):
 ```
 ということは、編集が完了すれば、{% url 'piece_detail' object.pk %} に遷移してくれるはず！
 それも一緒に確かめてみよう！
+
+
+もし、登録・編集の際に手持ち画像の準備が面倒なら、ぷに蔵 png たちを使ってくれ！ ©︎ぷに蔵
+
+| めんだこ    | あひる | ちょうちんあんこう  |
+| --------- | -- | ---------------- |
+| ![](/images/image_mendako.png =220x) | ![](/images/image_ahiru.png =220x)  | ![](/images/image_ankho.png =220x) |
+
 
 ♦️ リスト一覧から「詳細」ページに飛べたら完了！
 作品登録画面とシンクロ率200%笑
