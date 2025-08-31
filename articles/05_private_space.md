@@ -490,7 +490,7 @@ base.html の「親テンプレート」に対して、index.html や create.htm
 「てことは、CSS いじるのか？」と思って人は、HTML + CSS に馴染んでいるね。
 ふふふ、素晴らしい。
 
-しかし、今回に限っては、None！！！
+しかし、今回に限っては、Non！！！
 
 ここでは、CSSフレームワークの Bootstrap を使用していこう！
 Bootstrap ってなに？って？
