@@ -1,5 +1,5 @@
 ---
-title: "第０章　はじめのはじめに"
+title: "はじめのはじめに"
 emoji: "♉️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
