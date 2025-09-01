@@ -4,7 +4,7 @@ emoji: "♌️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
 published: true # trueを指定する
-published_at: 2025-09-01 11:00
+published_at: 2025-09-02 08:12
 ---
 
 ## 01. ロケット🚀から Hello World 🌎へ（レガシーグリーティングに敬意を込めて）

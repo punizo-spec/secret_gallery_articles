@@ -4,7 +4,7 @@ emoji: "♈️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
 published: true # trueを指定する
-published_at: 2025-09-01 11:00
+published_at: 2025-09-02 08:12
 ---
 
 > このシリーズは、Python 学習を開始して、「そろそろ Django フレームワークに触れてみたい！」という人はもちろん、Djangoの公式チュートリアルや入門書で挫折した経験がある方にも、もう一度チャレンジしてもらえるように構成しています。
