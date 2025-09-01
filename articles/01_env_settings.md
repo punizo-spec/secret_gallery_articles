@@ -15,7 +15,6 @@ published_at: 2025-09-01 11:00
 ```bash
 python3 --version
 ```
-
 "ターミナル"を使ったことない人は 👇 Launchpadで"ターミナル"検索 👇
 ![](/images/c1_p1_1_terminal.png)
 
