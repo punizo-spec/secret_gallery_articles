@@ -4,7 +4,7 @@ emoji: "♎️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["django", "python"]
 published: true
-published_at: 2050-08-20 00:00 # 未来の日時を指定する
+published_at: 2025-09-01 11:00
 ---
 ## 01. 秘密のための　ログイン / ログアウト機能
 「秘密のプライベートギャラリー」シリーズの最後は、ログイン機能の実装で締めよう！！

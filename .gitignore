@@ -4,3 +4,9 @@ base_user.py
 mdels.py
 usermodel.md
 validators.py
+articles/07_you_r_not_alone.md
+articles/08_your_deploy.md
+articles/09_heart_for_someone.md
+articles/10_nightly_celery.md
+articles/11_magicmethod.md
+articles/99_whichisyourfuture.md
