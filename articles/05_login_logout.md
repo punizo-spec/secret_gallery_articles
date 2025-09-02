@@ -736,8 +736,8 @@ STATIC_URL = "static/"
 Django は **sg_pieces アプリ内の static ディレクトリまで**探しに行く。
 > - **STATIC_URL = "static/"**  ← この設定が大事！
 > 
-> **secret_gallery/sg_pieces/static/ ← ここまでが検索対象
-　▶︎▶︎▶︎　{% load static %} が探し出す場所**
+> {% load static %} が探し出す場所は
+> ︎▶︎▶▶︎ **secret_gallery/sg_pieces/static/ ← ここまでが検索対象
 > 
 > そのため、「 href="{% static 'sg_pieces/css/style.css' %} 」というルートの指定をする。
 >
@@ -750,7 +750,7 @@ Django は **sg_pieces アプリ内の static ディレクトリまで**探し�
 つまり、**アプリ直下以外に static フォルダを置きたい場合に設定する箇所**。
 逆をいえば、すべての static フォルダがアプリ内に設置してあるなら、この設定は必要ない。
 ```python
-# プトジェクト直下に staticフォルダ作って置きたいのなら、この設定が必須
+# プトジェクト直下に staticフォルダ作ってファイルを置きたいのなら、この設定が必須
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
@@ -769,7 +769,7 @@ print("♦️ STATICFILES_DIRS:",STATICFILES_DIRS)
 プロジェクト直下の static フォルダを参照していることが分かったね。
 
 ・・・ということは、
-**この設定をすると、Django の自動探索場所が拡張されるから、プロジェクト直下に置くことも、むしろそれ以外の場所に置くことも、staticファイル を置くことが可能！！**
+**この設定をすると、Django の自動探索場所が拡張されるから、プロジェクト直下に static ファイルを置くことも、むしろそれ以外の場所に置くことも可能！！**
 （ただ、分かりやすい場所に、分かりやすい名前で置きな・・・とは思う笑）
 
 でも、プロジェクト全体で使いたい css / js / アイコン / 画像 があれば、アプリ配下じゃない場所に置いた方が、プロジェクト構造的にマッチする場合もありそうね！
@@ -778,7 +778,7 @@ print("♦️ STATICFILES_DIRS:",STATICFILES_DIRS)
 本当ならこの説明、 templates でも同じ構造という話ができるから出したかったんだけど、プロジェクトルート下で共通テンプレ化する構造が思い浮かばなかった🙏懺悔
 
 
-3. STATIC_ROOT
+3. **STATIC_ROOT**
 
 これは、本番用サーバーのための設定。
 いままでは、Django のプロジェクトルート内の話だったよ。
@@ -790,7 +790,7 @@ print("♦️ STATICFILES_DIRS:",STATICFILES_DIRS)
 そうなると、Django では直接グローバルIP を取得してくることができないから、本番サーバーに静的ファイルを乗せられないの。
 
 
-そんなときのために、STATIC_ROOT が存在する。
+そんなときのために、**`STATIC_ROOT`** が存在する。
 ```
 STATIC_ROOT = BASE_DIR / "staticfiles"
 ```
