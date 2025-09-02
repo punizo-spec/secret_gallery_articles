@@ -505,6 +505,7 @@ CDN（Content Delivery Network）は、画像やCSS、JavaScriptみたいな「�
 
 おそらく、static の効果が細かすぎて伝わらない笑
 少し「 TOP 」「 管理画面 」の文字を小さくしただけだから！！
+あと、マウスホバーのときに下線が出る！細かいっっ
 
 あとは、お好みに合わせて style.css に追加装飾してみてください🌻
 
