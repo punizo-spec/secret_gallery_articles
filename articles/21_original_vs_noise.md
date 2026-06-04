@@ -221,7 +221,7 @@ base vs base latent r² = 1.0000
 今回は自分で描いた単純な絵の「ちょうちんあんこう」を使います。
 紙に描いたのスキャンして、AIに色つけてもらいました。
 
-![](/images/ankho.png)
+![](/images/ankho.png =250x)
 
 
 これを元絵として、次に、ノイズレベルを段階的に付与したノイズ画像を準備します。
@@ -247,8 +247,7 @@ def add_texture_noise(
 
 これでノイズレベル　10, 20, 40, 60, 80 の「ちょうちんあんこう」が出来上がりました。
 こんな感じです。
-![](/images/aankho_noise_10.png) ![](/images/ankho_noise_20.png) ![](/images/ankho_noise_40.png) ![](/images/ankho_noise_60.png) ![](/images/ankho_noise_80.png)
-
+![](/images/ankho_noise_line.png)
 
 
 やりたいことは、「各ノイズレベルの画像に対して、学習済みモデルが元画像とどれくらい近い latent を出すかを見る」こと。
