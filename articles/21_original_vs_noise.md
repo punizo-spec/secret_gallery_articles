@@ -105,8 +105,8 @@ class SimpleAutoEncoder(nn.Module):
 今回は、「画像そのものを目視比較」ではなくて、encoder が作った latent 同士の比較が目的。
 そのために、latent を取り出す関数と、latent 同士の近さを見る関数を用意した。
 
-次に出る疑問が、「モデルの評価指標はなにでするの？」ですよね。
-今回は、下記の関数でいく。
+次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
+今回は、下記の関数でいこう。
 
 ```python
 model = SimpleAutoEncoder().to(DEVICE)
