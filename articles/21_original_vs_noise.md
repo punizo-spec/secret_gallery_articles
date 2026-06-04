@@ -110,8 +110,6 @@ class SimpleAutoEncoder(nn.Module):
 
 ```python
 model = SimpleAutoEncoder().to(DEVICE)
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-loss_fn = nn.MSELoss()
 
 def get_latent(model, img):
     model.eval()
