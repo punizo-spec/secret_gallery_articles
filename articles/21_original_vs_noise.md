@@ -1,6 +1,6 @@
 ---
 title: "画像に載せた「ノイズ」は、生成AI対策として有効なのか？"
-emoji: "♈️"
+emoji: "🌡️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["python"]
 published: true # trueを指定する
