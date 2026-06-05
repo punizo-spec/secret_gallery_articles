@@ -137,9 +137,6 @@ loader = DataLoader(
 今回は、「画像そのものを目視比較」ではなくて、encoder が作った latent 同士の比較が目的。
 そのために、latent を取り出す関数と、latent 同士の近さを見る関数を用意したよ。
 
-となると、次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
-今回は、下記の関数で評価するようにしていこうと思います〜。
-
 ```python
 DEVICE = torch.device("cpu")
 model = SimpleAutoEncoder().to(DEVICE)
@@ -149,8 +146,12 @@ def get_latent(model, img):
     with torch.no_grad():
         latent = model.encode(img)
     return latent.cpu().numpy().flatten()
+```
 
+そして、次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
+今回は、下記の関数で評価するようにしていこうと思います〜。
 
+```python
 def calc_latent_r2(model, img_a, img_b):
     z_a = get_latent(model, img_a)
     z_b = get_latent(model, img_b)
