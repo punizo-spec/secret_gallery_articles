@@ -4,7 +4,7 @@ emoji: "🌡️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["python"]
 published: true # trueを指定する
-published_at: 2026-06-05 16:20
+published_at: 2026-06-05 15:56
 ---
 
 
