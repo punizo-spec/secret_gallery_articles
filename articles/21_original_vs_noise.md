@@ -4,7 +4,7 @@ emoji: "🌡️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["python"]
 published: true # trueを指定する
-published_at: 2026-06-05 02:20
+published_at: 2026-06-05 16:20
 ---
 
 
@@ -60,12 +60,11 @@ published_at: 2026-06-05 02:20
 これは、「検証用のナニカ」程度に思っておいてください。
 
 
-
 今回のモデルでは、画像は 224px にリサイズして、学習回数は epoch=300 に固定。
 epoch は、「学習データを何周AIに見せるか」という意味。
 たくさん見せれば良いとか、少ないと悪いとかではなくて、どのくらい見せることで、モデルが「これ以上学習しても意味なくなるか」を見極める回数のこと。
 本来なら、何度か色々回してみて、そのモデルに最適な epoch 数を決めたりする（loss が横ばいになる周回を見極めながら決定するの）。
-でも今回は 300 でいい。
+でも今回は 300 でいいかな。
 
 ```python
 class SimpleAutoEncoder(nn.Module):
@@ -93,22 +92,53 @@ class SimpleAutoEncoder(nn.Module):
         latent = self.encoder(x)
         reconstructed = self.decoder(latent)
         return reconstructed
-    
 ```
 活性化関数に ReLU 使いますが、LeakyReLU でも良いです。
 今回は「単純ノイズで latent が大きく動くか」を見るのが目的なので、ここにこだわりはナシ。
+ただ、ランダムシードだけは固定しておきます。
+latent は、ランダムシードを固定しないと、毎回違う値を出してしまうのが特徴なのでね。
 
+もし GPU 使っているなら cuDNN の挙動制御も入れた方が良いと思うけど、今回はCPU なので、このくらいで大丈夫でしょうね。
+ランダムシードはお約束の 42 にするので、固定はこんな感んじでいきます。
 
+```
+def set_seed(seed=42):
+    random.seed(seed)  # Python標準のrandom用
+    np.random.seed(seed)  # NumPy用
+    torch.manual_seed(seed)  # PyTorch用
+
+set_seed(42)
+```
+
+あと、DataLoader で shuffle=True で使用するから、専用乱数も作って固定しておこうかな🧐
+
+```
+dataset = ImageFolderDataset("./train_images", img_size=IMG_SIZE)
+
+# ここで Dataloader の乱数を制御しておく
+g = torch.Generator()
+g.manual_seed(42)
+
+loader = DataLoader(
+    dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=True,
+    num_workers=0,
+    generator=g,
+)
+```
+うんうん。良い感じな気がする。
 
 **🟣 latent の「似てる度」を見る**
 
 今回は、「画像そのものを目視比較」ではなくて、encoder が作った latent 同士の比較が目的。
 そのために、latent を取り出す関数と、latent 同士の近さを見る関数を用意した。
 
-次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
-今回は、下記の関数でいこう。
+となると、次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
+今回は、下記の関数で評価するようにしていこうと思います〜。
 
 ```python
+DEVICE = torch.device("cpu")
 model = SimpleAutoEncoder().to(DEVICE)
 
 def get_latent(model, img):
@@ -124,7 +154,7 @@ def calc_latent_r2(model, img_a, img_b):
     return r2_score(z_a, z_b)
 ```
 
-これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整った。
+これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整ったね。
 
 **r2_score** というのが、今回の実験における「似てる度スコア」のこと。
 
@@ -182,28 +212,34 @@ y_pred = ノイズ画像の latent
 ## 3. モデルの検証
 
 まずは、この比較方法がちゃんと動くか確認してみましょう。
+さっき作った def calc_latent_r2() を使用して 同じ画像の latent を比較してみます。
+使用画像はこちら。
+![](/images/ankho_white.png =250x)
+ぷに蔵作（AI色付け）「ちょうちんあんこう」
 
-同じ画像を、さっき作った def calc_latent_r2() を使用して latent を比較しましょう。
+これを回します。
 
 ```
 ankho = load_image("./ankho.png", IMG_SIZE)
 latent_r2_base = calc_latent_r2(model, ankho, ankho)
 ```
 
-
 同じ画像なので、r2 が 1.0000 に近くなるのが理想です。
-さぁ、どうでしょう？
+どうでしょう？
 
 結果はこちら。
 
 ```
-ankho vs ankho latent r² = 1.0000
+ankho vs ankho latent r2 = 1.0000
 ```
 
 うん。モデルと比較関数は成立してそう。
-同じ画像比較は良さそうなので、次はまったく違う画像で比較してみましょう。
+同じ画像比較は良さそうなので、次は、ぷに蔵作（AI色付け）の別画像の「めんだこ」画像で比較してみましょう。
+![](/images/mendako_white.png =250x)
+ぷに蔵作（AI色付け）「めんだこ」
 
-こちらを使用。
+
+こちらを回して・・・
 ```
 ankho = load_image("./ankho.png", IMG_SIZE)
 mendako = load_image("./mendako.png", IMG_SIZE)
@@ -212,56 +248,79 @@ latent_r2_diff = calc_latent_r2(model, ankho, mendako)
 
 結果がこちら。
 ```
-ankho vs mendako latent r² = -0.2214
+ankho vs mendako latent r2 = 0.5119
 ```
 
-良い感じですね。
-latent 同士の比較値がマイナスの値です。
-さっき確認した目安は、以下のとおりでした。
+お。r2 = 0.5119 まで下がった！
+別画像だからマイナスまでいくかな？と思っていたけど、ペンタッチやフォルム、白背景など、共通項が多いからそこまで下がらなかったかも？
+じゃあ、全く違うタッチのものだとどうだろう🧐
+
+ものすごい繊細な線画でもう一度！（こちらは友人のイラストレーターの作品なので掲載できないです）
+これを回します。
+```
+ankho = load_image("./ankho.png", IMG_SIZE)
+beautiful_woman = load_image("./beautiful_woman.jpg", IMG_SIZE)
+latent_r2_diff = calc_latent_r2(model, ankho, beautiful_woman)
+```
+
+結果は・・・・
+
+```
+ankho vs diff_img latent r2 = -0.9630
+```
+
+ひゃーーー。マイナスいった！
+やっぱり、全く違うタッチで、細かな美しい線と多色遣いの作品と、ぷに蔵が紙の切れ端に描いてスキャンしたものでは、お手製小型 AutoEncoder 的にも違う内部表現になっていそう！笑
+楽しくなってきたーー笑
+
+
+で、さっき確認した目安は、以下のとおりでしたよね。
 
 > - 1.0000 に近い：AIの内部表現としてかなり近い
 > - 0 に近づく：似ているとは言いにくくなる
 > - マイナス：かなり違う内部表現になっている可能性が高い
 
-なので、モデル内部では、ちゃんと違う画像として扱われていそう。
-
+いまのテストと照らし合わせてみても、「似た画像比較」は 0 - 1.000 の間、「全く違う画像比較」はマイナスとなっていたので、モデルとして最低限の妥当性は満たしてそう。
 つまりこれで、
 
 - 同じ画像を同じものとして見る
 - 違う画像では内部表現もちゃんとズレている
 - latent の取り出しと比較が正常に動いている
 
-という前提はクリアできているのではないかな。
-
+という前提はクリアできていそうですね。
 
 
 ということで、準備オーケー。
 
 
-
 ## 4. 学習と画像比較の実験
 
-まずは、画像を準備します。
-今回は自分で描いた単純な絵の「ちょうちんあんこう」を使います。
-紙に描いたのスキャンして、AIに色つけてもらいました。
+まずは「比較前画像（未加工）」を準備します。
+今回は、さっきの「ちょうちんあんこう」を元画像として扱いますね。
 
-![](/images/ankho.png =250x)
-
-
-これを元絵として、次に、ノイズレベルを段階的に付与したノイズ画像を準備します。
-ペイントソフト持ってないので、pythonで作ります。雑ですみません。
-これを、strength : 10, 20, 40, 60, 80 で回して5枚のノイズ画像完成です。
+そして次に、ノイズレベルを段階的に付与したノイズ画像を準備します。
+ペイントソフトでやれば良いのかもしれないけど、レベル別検証がしたかったので、pythonでそのまま作成。
+strength は 0, 10, 20, 40, 60, 80 です。
+ノイズ 0 も作ったのは、ノイズ生成を通すことをしただけの画像と元画像の比較もしたかったから。
 
 ```python
+def load_rgba_as_rgb_on_white(path):
+    image = Image.open(path).convert("RGBA")
+    bg = Image.new("RGBA", image.size, (255, 255, 255, 255))
+    return Image.alpha_composite(bg, image).convert("RGB")
+
 def add_texture_noise(
     input_path,
     output_path,
-    strength,
+    strength=20,
+    seed=42,
 ):
-    image = Image.open(input_path).convert("RGB")
+    rng = np.random.default_rng(seed)
+
+    image = load_rgba_as_rgb_on_white(input_path)
     arr = np.array(image).astype(np.int16)
 
-    noise = np.random.normal(loc=0, scale=strength, size=arr.shape)
+    noise = rng.normal(loc=0, scale=strength, size=arr.shape)
 
     noisy = arr + noise
     noisy = np.clip(noisy, 0, 255).astype(np.uint8)
@@ -269,17 +328,23 @@ def add_texture_noise(
     Image.fromarray(noisy).save(output_path)
 ```
 
-これでノイズレベルが左から順に　10, 20, 40, 60, 80 の「ちょうちんあんこう」が出来上がりました。
-こんな感じです。
-![](/images/ankho_noise_line.png)
-ちょっと分かりづらいけど、ノイズ差が結構あります。
+最初、元画像をそのままRGB化してみたら、透過PNGだったせいか、透明背景が黒っぽく出てしまったんですよね。
+なので、load_rgba_as_rgb_on_white() を入れて透明部分を白背景に合成してからノイズ加えました。
+今回は比較検証なので、元画像の透過PNGも load_rgba_as_rgb_on_white() を通しておいた。
+
+ノイズ画像はこんな感じ。
+![](/images/ankho_noise_0_80.png)
+ノイズレベルが左上から右下に向かっていくように　0, 10, 20, 40, 60, 80 の順番で並べてみました。
+ノイズ具合、分かります？？個人的には、40 からノイズ感が結構ある気がするけれど。
 
 
-やりたいことは、「各ノイズレベルの画像に対して、学習済みモデルが元画像とどれくらい近い latent を出すかを見る」こと。
+やりたいことは、「各ノイズレベルの画像に対して、学習済みモデルが元画像とどれくらい近い latent を出すかを見る」ことですね。
+
+
 AIのモデルを使用するためには、学習用の画像が必要です。
-手元に、全くタッチが違う画像を5枚ほど用意しました。
+そのため、手元に、全くタッチが違う画像を5枚ほど用意しました。
 
-学習には、自作イラスト1枚（元画像と同じタッチ）、写真1枚、イラスト3枚を使用します。
+今回の学習では、自作イラスト1枚（元画像と同じタッチ）、写真1枚、イラスト3枚を使用します。
 （今回は再現性を厳密に担保する実験ではなく、「単純なノイズで latent が大きく変わるのか」を見るための実験なので、学習画像そのものの掲載は割愛！）
 友人のイラストレーターから借りたものも入れたので、著作権もありますので、ご了承ください。
 <br>
@@ -297,10 +362,8 @@ loss_fn = nn.MSELoss()
 
 ```python
 base = load_image("./check_images/ankho.png", IMG_SIZE)
-for s in [10, 20, 40, 60, 80]:
+for s in [0, 10, 20, 40, 60, 80]:
     noise = load_image(f"./check_images/ankho_noise_{s}.png", IMG_SIZE)
-
-    latent_r2_base = calc_latent_r2(model, base, base)
     latent_r2_noise = calc_latent_r2(model, base, noise)
     recon_r2_base = calc_reconstruction_r2(model, base)
 ```
@@ -308,68 +371,42 @@ for s in [10, 20, 40, 60, 80]:
 結果。
 
 ```
-base vs noise_10 latent r² = 0.9998
-base vs noise_20 latent r² = 0.9996
-base vs noise_40 latent r² = 0.9981
-base vs noise_60 latent r² = 0.9938
-base vs noise_80 latent r² = 0.9813
-base reconstruction r² = 0.8842
+ankho vs noise_0 latent r2 = 1.0000
+ankho vs noise_10 latent r2 = 0.9983
+ankho vs noise_20 latent r2 = 0.9937
+ankho vs noise_40 latent r2 = 0.9755
+ankho vs noise_60 latent r2 = 0.9451
+ankho vs noise_80 latent r2 = 0.9021
+ankho reconstruction r2 = 0.9077
 ```
-
-
 
 こ、これは・・・・・
 
 
+まず、ankho vs noise_0 latent r2 = 1.0000 が出ていますね。
+noise_0 は、ノイズ生成処理を通しただけで、ノイズ強度は 0 の画像でした。
+つまり、白背景化や保存処理を挟んでも、元画像と同じ latent を示しているということですね。
 
-noise_80 まで強くしても latent r2 は 0.9813 で、元画像の latent とかなり近い値ですね。
-一方、reconstruction r² は 0.8842 でした。
+ということは、noise_10〜80 における latent r2 の低下は、かなり素直に「ノイズ強度の影響」と見てよさそう。
+<br>
 
+それを踏まえて結果を見ると、
+ノイズ強度を上げるほど latent r2 は段階的に下がっていきます。
 
+なので、単純ノイズの影響はゼロではないと言えそう。
+ただ、noise_80 でも r2 = 0.9021 ということは、元画像の内部表現とノイズ画像の内部表現は、そこまで大きく離れなかったということですね。
 
-一回だけだとつまらないので、学習画像を入れ替えてもう一度やってみましょ。
-学習画像は元画像の「ちょうちんあんこう」含めて6枚です。
-条件を変えるので、model と optimizer も作り直しますね。同じ model を使い回すと、前回の学習結果が残ってしまうので。
+そして、reconstruction r2 も 0.9077 か〜。
+これは、「小型 AutoEncoder が元画像をどのくらい復元できたか」のスコアなんですよ。
 
+今回の検証は latent の比較が主目的なので reconstruction r2 については重視しないけれど、でも、reconstruction r2 = 0.9077 という値が出ているので、少なくともこの小型 AutoEncoder では、元画像をある程度復元できている状態で比較している、と見て良さそう。
+<br>
 
-
-そんな条件下においての実験結果は・・・
-
-
-```
-base vs noise_10 latent r² = 0.9999
-base vs noise_20 latent r² = 0.9997
-base vs noise_40 latent r² = 0.9985
-base vs noise_60 latent r² = 0.9952
-base vs noise_80 latent r² = 0.9873
-base reconstruction r² = 0.9487
-```
-
-
-おおお・・・。
-
-
-reconstruction r² = 0.9487 に変動しましたね！！高っ！
-
-
-これは、小型 AutoEncoder の復元性能が学習画像の構成に影響されたからかな？
-（復元についての仮説などは、今回は目的としないので深掘りやめておきます）
-
-
-ただ、元画像とノイズ画像の latent r² は、どの条件でも 0.98 以上を保っているんですよね。
-見た目にはかなりザラついているのに、モデル内部の圧縮情報としては、かなり元画像に近いまま。
-
-
-ということで、今回の小型 AutoEncoder 実験で示唆できることは、
-**『単純なランダムノイズが latent 表現を大きく崩す傾向が見られない』**
-
-ということかと思います。
-
+総評すると、今回の小型 AutoEncoder から見るに、**単純ノイズは latent にまったく影響しない** とは言えないけれど、
+**単純なランダムノイズが、元画像の内部表現を大きく別物にするほどの影響は見られなかったい** ということでしょうかね〜。
 
 
 やっぱり単純なテクスチャ系のノイズと Glaze の敵対的摂動は別物だな、という印象。
-
-
 
 
 ## 5. さいごに：ノイズより前に考えたいこと
