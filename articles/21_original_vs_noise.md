@@ -110,7 +110,7 @@ def set_seed(seed=42):
 set_seed(42)
 ```
 
-あー。あと、DataLoader で shuffle=True で使用するから、専用乱数も作って固定しておこうかな🧐
+あと、DataLoader で shuffle=True 使用するから、専用乱数も作って固定しておこうかな🧐
 
 ```
 IMG_SIZE = 224
