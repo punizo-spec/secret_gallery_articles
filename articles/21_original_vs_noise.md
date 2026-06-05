@@ -135,7 +135,7 @@ loader = DataLoader(
 **🟣 latent の「似てる度」を見る**
 
 今回は、「画像そのものを目視比較」ではなくて、encoder が作った latent 同士の比較が目的。
-そのために、latent を取り出す関数と、latent 同士の近さを見る関数を用意したよ。
+だから、まずは画像を encoder に通して latent を取り出す関数を用意します。
 
 ```python
 DEVICE = torch.device("cpu")
@@ -148,7 +148,7 @@ def get_latent(model, img):
     return latent.cpu().numpy().flatten()
 ```
 
-そして、次に出る疑問が、「モデルの評価指標はなにでするの？」ですね。
+そして、次に、「モデルの評価指標はなにでするの？」ですね。
 今回は、下記の関数で評価するようにしていこうと思います〜。
 
 ```python
@@ -158,7 +158,7 @@ def calc_latent_r2(model, img_a, img_b):
     return r2_score(z_a, z_b)
 ```
 
-これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整ったね。
+これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整ったよ。
 
 **r2_score** というのが、今回の実験における「似てる度スコア」のこと。
 
