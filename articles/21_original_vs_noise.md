@@ -186,8 +186,8 @@ y_pred = ノイズ画像の latent
 同じ画像を、さっき作った def calc_latent_r2() を使用して latent を比較しましょう。
 
 ```
-base = load_image("./ankho.png", IMG_SIZE)
-latent_r2_base = calc_latent_r2(model, base, base)
+ankho = load_image("./ankho.png", IMG_SIZE)
+latent_r2_base = calc_latent_r2(model, ankho, ankho)
 ```
 
 
@@ -197,15 +197,41 @@ latent_r2_base = calc_latent_r2(model, base, base)
 結果はこちら。
 
 ```
-base vs base latent r² = 1.0000
+ankho vs ankho latent r² = 1.0000
 ```
 
 うん。モデルと比較関数は成立してそう。
+同じ画像比較は良さそうなので、次はまったく違う画像で比較してみましょう。
+
+こちらを使用。
+```
+ankho = load_image("./ankho.png", IMG_SIZE)
+mendako = load_image("./mendako.png", IMG_SIZE)
+latent_r2_diff = calc_latent_r2(model, ankho, mendako)
+```
+
+結果がこちら。
+```
+ankho vs mendako latent r² = -0.2214
+```
+
+良い感じですね。
+latent 同士の比較値がマイナスの値です。
+さっき確認した目安は、下記でした。
+
+> - 1.0000 に近い：AIの内部表現としてかなり近い
+> - 0 に近づく：似ているとは言いにくくなる
+> - マイナス：かなり違う内部表現になっている可能性が高い
+
+なので、モデル内部では、ちゃんと違う画像として扱われていそうね。
+
+つまりこれで、
 
 - 同じ画像を同じものとして見る
+- 違う画像では内部表現もちゃんとズレている
 - latent の取り出しと比較が正常に動いている
 
-という前提はクリアできてるのではないかな。
+という前提はクリアできているのではないかな。
 
 
 
