@@ -255,18 +255,19 @@ ankho vs mendako latent r2 = 0.5119
 別画像だからマイナスまでいくかな？と思っていたけど、ペンタッチやフォルム、白背景など、共通項が多いからそこまで下がらなかったかも？
 じゃあ、全く違うタッチのものだとどうだろう🧐
 
-ものすごい繊細な線画でもう一度！（こちらは友人のイラストレーターの作品なので掲載できないです）
-これを回します。
+ものすごい繊細な線画でもう一度！（こちらは友人のイラストレーターの作品なので掲載できないです🙇‍♂️）
+
+回します。
 ```
 ankho = load_image("./ankho.png", IMG_SIZE)
-beautiful_woman = load_image("./beautiful_woman.jpg", IMG_SIZE)
-latent_r2_diff = calc_latent_r2(model, ankho, beautiful_woman)
+woman_img = load_image("./woman_img.jpg", IMG_SIZE)
+latent_r2_diff = calc_latent_r2(model, ankho, woman_img)
 ```
 
 結果は・・・・
 
 ```
-ankho vs diff_img latent r2 = -0.9630
+ankho vs diff_img latent r2 = -1.2831
 ```
 
 ひゃーーー。マイナスいった！
@@ -344,9 +345,8 @@ def add_texture_noise(
 AIのモデルを使用するためには、学習用の画像が必要です。
 そのため、手元に、全くタッチが違う画像を5枚ほど用意しました。
 
-今回の学習では、自作イラスト1枚（元画像と同じタッチ）、写真1枚、イラスト3枚を使用します。
+今回の学習では、自作イラストの「ちょうちんあんこう」と「めんだこ」、それに加えて写真1枚、イラスト3枚を使用します。
 （今回は再現性を厳密に担保する実験ではなく、「単純なノイズで latent が大きく変わるのか」を見るための実験なので、学習画像そのものの掲載は割愛！）
-友人のイラストレーターから借りたものも入れたので、著作権もありますので、ご了承ください。
 <br>
 それでは参りましょう。
 
@@ -370,14 +370,15 @@ for s in [0, 10, 20, 40, 60, 80]:
 
 結果。
 
+
 ```
 ankho vs noise_0 latent r2 = 1.0000
-ankho vs noise_10 latent r2 = 0.9983
-ankho vs noise_20 latent r2 = 0.9937
-ankho vs noise_40 latent r2 = 0.9755
-ankho vs noise_60 latent r2 = 0.9451
-ankho vs noise_80 latent r2 = 0.9021
-ankho reconstruction r2 = 0.9077
+ankho vs noise_10 latent r2 = 0.9987
+ankho vs noise_20 latent r2 = 0.9950
+ankho vs noise_40 latent r2 = 0.9804
+ankho vs noise_60 latent r2 = 0.9561
+ankho vs noise_80 latent r2 = 0.9217
+ankho reconstruction r2 = 0.9096
 ```
 
 こ、これは・・・・・
@@ -394,12 +395,12 @@ noise_0 は、ノイズ生成処理を通しただけで、ノイズ強度は 0 
 ノイズ強度を上げるほど latent r2 は段階的に下がっていきます。
 
 なので、単純ノイズの影響はゼロではないと言えそう。
-ただ、noise_80 でも r2 = 0.9021 ということは、元画像の内部表現とノイズ画像の内部表現は、そこまで大きく離れなかったということですね。
+ただ、noise_80 でも latent r2 = 0.9217 ということは、元画像の内部表現とノイズ画像の内部表現は、そこまで大きく離れなかったということですね。
 
-そして、reconstruction r2 も 0.9077 か〜。
+そして、reconstruction r2 も 0.9096 か〜。
 これは、「小型 AutoEncoder が元画像をどのくらい復元できたか」のスコアなんですよ。
 
-今回の検証は latent の比較が主目的なので reconstruction r2 については重視しないけれど、でも、reconstruction r2 = 0.9077 という値が出ているので、少なくともこの小型 AutoEncoder では、元画像をある程度復元できている状態で比較している、と見て良さそう。
+今回の検証は latent の比較が主目的なので reconstruction r2 については重視しないけれど、でも、reconstruction r2 = 0.9096 という値が出ているので、少なくともこの小型 AutoEncoder では、元画像をある程度復元できている状態で比較している、と見て良さそう。
 <br>
 
 総評すると、今回の小型 AutoEncoder から見るに、**単純ノイズは latent にまったく影響しない** とは言えないけれど、
