@@ -149,7 +149,7 @@ def get_latent(model, img):
 ```
 
 そして、次に、「モデルの評価指標はなにでするの？」ですね。
-今回は、下記の関数で評価するようにしていこうと思います〜。
+今回は、下記の関数で評価していこうと思います〜。
 
 ```python
 def calc_latent_r2(model, img_a, img_b):
