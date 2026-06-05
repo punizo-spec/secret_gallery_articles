@@ -135,7 +135,7 @@ loader = DataLoader(
 **🟣 latent の「似てる度」を見る**
 
 今回は、「画像そのものを目視比較」ではなくて、encoder が作った latent 同士の比較が目的。
-だから、まずは画像を encoder に通して latent を取り出す関数を用意します。
+だから、まずは画像を encoder に通して latent を取り出す関数をじゅんび。
 
 ```python
 DEVICE = torch.device("cpu")
@@ -158,7 +158,7 @@ def calc_latent_r2(model, img_a, img_b):
     return r2_score(z_a, z_b)
 ```
 
-これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整ったよ。
+これで、元画像とノイズ加工後画像の「似てる度」スコア化の準備が整った。
 
 **r2_score** というのが、今回の実験における「似てる度スコア」のこと。
 
