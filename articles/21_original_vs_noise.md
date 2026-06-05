@@ -113,6 +113,9 @@ set_seed(42)
 あと、DataLoader で shuffle=True で使用するから、専用乱数も作って固定しておこうかな🧐
 
 ```
+IMG_SIZE = 224
+BATCH_SIZE = 8
+
 dataset = ImageFolderDataset("./train_images", img_size=IMG_SIZE)
 
 # ここで Dataloader の乱数を制御しておく
@@ -197,7 +200,7 @@ y_pred = ノイズ画像の latent
 
 ・・・と言っていました。
 
-**分かりやすく・・・とは・・・？笑**
+分かりやすく・・・とは・・・？
 
 まぁ、つまり、結果の目安は、こんな感じと思ってくれて良いですね。
 
